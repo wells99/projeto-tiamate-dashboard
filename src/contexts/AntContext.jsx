@@ -1,13 +1,13 @@
 /* eslint-disable react/prop-types */
-import { ConfigProvider, notification } from "antd";
-import { createContext } from "react";
+import { ConfigProvider, notification } from "antd"
+import { createContext } from "react"
 
 
-const AntContext = createContext()
+export const AntContext = createContext()
 
 const AntProvider = ({ children }) => {
     const [api, contextHolder] = notification.useNotification({
-        placement: "bottomRight"
+        placement: "topRight"
     });
     return (
         <ConfigProvider

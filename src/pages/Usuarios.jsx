@@ -1,14 +1,13 @@
-import { Button, Drawer, Form, Input } from "antd";
-import { useState } from "react";
+import { PlusCircleOutlined } from "@ant-design/icons"
+import { Button, Drawer, Form, Input } from "antd"
+import { useState } from "react"
 
 const Usuarios = () => {
-
     const [visibleCreate, setVisibleCreate] = useState(false);
 
     function onSubmitCreate(dados){
         console.log(dados);
     }
-
     return (
         <>
             <div className="flex justify-between items-center">
@@ -17,10 +16,10 @@ const Usuarios = () => {
                     type="primary"
                     onClick={() => setVisibleCreate(true)}
                 >
-                    Novo usuário
+                    <PlusCircleOutlined />
+                    Novo Usuário
                 </Button>
             </div>
-
 
             <Drawer
                 title="Criar Usuário"
@@ -43,7 +42,7 @@ const Usuarios = () => {
                         name={"usuario_email"}
                         rules={[{ required: true, message: "Campo obrigatório!" }]}
                     >
-                        <Input type="email" placeholder="Nome do usuário" />
+                        <Input type="email" placeholder="Email do usuário" />
                     </Form.Item>
                     <Form.Item
                         label="Senha"
