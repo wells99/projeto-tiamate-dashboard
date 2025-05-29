@@ -1,6 +1,6 @@
 import { useState, useContext } from "react"
 import { AntContext } from "../contexts/AntContext"
-import { DeleteFilled, PlusCircleOutlined } from "@ant-design/icons"
+import { DeleteFilled, EditFilled, PlusCircleOutlined } from "@ant-design/icons"
 import { Button, Drawer, Form, Input, Popconfirm, Rate, Table } from "antd"
 import TextArea from "antd/es/input/TextArea"
 
@@ -69,28 +69,37 @@ const Depoimentos = () => {
       ellipsis: true,
     },
     {
-      title:"Excluir",
+      title: "Excluir",
       dataIndex: "",
       key: "x",
-      width: "8%",
+      width: "110px",
       align: "center",
       render: (_, record) => (
-        <Popconfirm
-          title="Deseja excluir?"
-          onConfirm={() => handleDelete(record.key)}
-          okText="Sim"
-          cancelText="Não"
-        >
-          <DeleteFilled
-            style={{ color: "red", cursor: "pointer" }}
-          />
-        </Popconfirm>
+        <div className="flex gap-3">
+          <div className="w-[30px] h-[30px] flex justify-center items-center cursor-pointer duration-150 border border-transparent rounded-full hover:border-marrom group">
+              <EditFilled
+                className=" duration-150 !text-bege group-hover:!text-marrom"
+              />
+            </div>
+          <Popconfirm
+            title="Deseja excluir?"
+            onConfirm={() => handleDelete(record.key)}
+            okText="Sim"
+            cancelText="Não"
+          >
+            <div className="w-[30px] h-[30px] flex justify-center items-center cursor-pointer duration-150 border border-transparent rounded-full hover:border-marrom group">
+              <DeleteFilled
+                className=" duration-150 !text-bege group-hover:!text-marrom"
+              />
+            </div>
+          </Popconfirm>
+        </div>
       ),
     },
   ]
 
   // CRIAR
-  function onSubmitCreate(dados){
+  function onSubmitCreate(dados) {
     setDadosDepoimentos((prev) => [
       ...prev,
       {
@@ -118,7 +127,7 @@ const Depoimentos = () => {
       description: "Um depoimento foi removido da lista.",
     })
   }
-  return ( 
+  return (
     <>
       <div>
         <div className="flex justify-between items-center mb-8">
@@ -133,8 +142,8 @@ const Depoimentos = () => {
           </Button>
         </div>
         <Table
-          dataSource={dadosDepoimento} 
-          columns={colunas} 
+          dataSource={dadosDepoimento}
+          columns={colunas}
           pagination={{ pageSize: 9 }}
         />
       </div>
@@ -169,9 +178,9 @@ const Depoimentos = () => {
             name={"depoimento_mensagem"}
             rules={[{ required: true, message: "Campo obrigatório!" }]}
           >
-            <TextArea 
+            <TextArea
               rows={4}
-              placeholder="Mensagem" 
+              placeholder="Mensagem"
             />
           </Form.Item>
           <Button
@@ -184,7 +193,7 @@ const Depoimentos = () => {
         </Form>
       </Drawer>
     </>
-   );
+  );
 }
- 
+
 export default Depoimentos;
