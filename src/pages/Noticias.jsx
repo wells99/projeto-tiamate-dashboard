@@ -1,50 +1,50 @@
 import { useState, useContext, useEffect } from "react"
 import { AntContext } from "../contexts/AntContext"
-import { Button, Drawer, Form, Input, Popconfirm, Rate, Table, Image, Upload } from "antd"
+import { Button, Drawer, Form, Input, Popconfirm, Table, Image, Upload } from "antd"
 import { DeleteFilled, EditFilled, PlusCircleOutlined, UploadOutlined } from "@ant-design/icons"
 import TextArea from "antd/es/input/TextArea"
 
-const Depoimentos = () => {
+const Noticias = () => {
   const [visibleCreate, setVisibleCreate] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
-  const [editingDepoimento, setEditingDepoimento] = useState(null)
+  const [editingNoticias, setEditingNoticias] = useState(null)
   const { api } = useContext(AntContext)
   const [form] = Form.useForm()
-  const [depoimentos, setDepoimentos] = useState([])
+  const [noticias, setNoticias] = useState([])
 
   // COLUNAS DA TABELA
   const colunas = [
     {
-      title: "Nota",
-      dataIndex: "nota",
-      key: "depoimento_nota",
-      width: "8%",
-      align: "center",
-    },
-    {
-      title: "Nome",
-      dataIndex: "nome",
-      key: "depoimento_nome",
+      title: "Titulo",
+      dataIndex: "titulo",
+      key: "noticia_titulo",
       width: "20%",
       ellipsis: true,
     },
     {
-      title: "Depoimento",
-      dataIndex: "mensagem",
-      key: "depoimento_mensagem",
-      width: "53%",
+      title: "Link",
+      dataIndex: "link",
+      key: "noticia_link",
+      width: "20%",
+      ellipsis: true,
+    },
+    {
+      title: "Descrição",
+      dataIndex: "descricao",
+      key: "noticia_descricao",
+      width: "41%",
       ellipsis: true,
     },
     {
       title: "Imagem",
       dataIndex: "imagem",
-      key: "depoimento_imagem",
+      key: "noticia_imagem",
       width: "10%",
       align: "center",
       render: (imagem) => (
         <Image 
           src={imagem}
-          alt="Depoimento"
+          alt="Noticia"
           width={60}
           height={60}
           style={{ objectFit: "cover", borderRadius: 8 }}
@@ -80,7 +80,7 @@ const Depoimentos = () => {
   function openDrawerCreate() {
     setVisibleCreate(true)
     setIsEditing(false)
-    setEditingDepoimento(null)
+    setEditingNoticias(null)
     form.resetFields()
   }
 
@@ -88,21 +88,21 @@ const Depoimentos = () => {
   function handleCreate(dados) {
     let imagemUrl = ""
     if (
-      dados.depoimento_imagem &&
-      Array.isArray(dados.depoimento_imagem) &&
-      dados.depoimento_imagem.length > 0
+      dados.noticia_imagem &&
+      Array.isArray(dados.noticia_imagem) &&
+      dados.noticia_imagem.length > 0
     ) {
-      const file = dados.depoimento_imagem[0].originFileObj
+      const file = dados.noticia_imagem[0].originFileObj
       imagemUrl = URL.createObjectURL(file)
     }
 
-    setDepoimentos((prev) => [
+    setNoticias((prev) => [
       ...prev,
       {
         key: prev.length + 1,
-        nota: String(dados.depoimento_nota),
-        nome: dados.depoimento_nome,
-        mensagem: dados.depoimento_mensagem,
+        titulo: dados.noticia_titulo,
+        link: dados.noticia_link,
+        descricao: dados.noticia_descricao,
         imagem: imagemUrl,
       },
     ])
@@ -110,21 +110,21 @@ const Depoimentos = () => {
     setVisibleCreate(false)
 
     api.success({
-      message: "Depoimento criado com sucesso!",
-      description: "Um depoimento foi adicionado a lista.",
+      message: "Notícia criada com sucesso!",
+      description: "Uma notícia foi adicionada a lista.",
     })
   }
 
   // ABRIR EDITAR
   function openDrawerEdit(record) {
     setIsEditing(true)
-    setEditingDepoimento(record)
+    setEditingNoticias(record)
     setVisibleCreate(true)
     form.setFieldsValue({
-      depoimento_nota: Number(record.nota),
-      depoimento_nome: record.nome,
-      depoimento_mensagem: record.mensagem,
-      depoimento_imagem: record.imagem 
+      noticia_titulo: record.titulo,
+      noticia_link: record.link,
+      noticia_descricao: record.descricao,
+      noticia_imagem: record.imagem
         ? [
             {
               uid: "-1",
@@ -139,28 +139,28 @@ const Depoimentos = () => {
 
   // EDITAR
   function handleEdit(dados) {
-    let imagemUrl = editingDepoimento.imagem;
+    let imagemUrl = editingNoticias.imagem;
     if (
-      dados.depoimento_imagem &&
-      Array.isArray(dados.depoimento_imagem) &&
-      dados.depoimento_imagem.length > 0
+      dados.noticia_imagem &&
+      Array.isArray(dados.noticia_imagem) &&
+      dados.noticia_imagem.length > 0
     ) {
-      const fileObj = dados.depoimento_imagem[0];
+      const fileObj = dados.noticia_imagem[0];
       if (fileObj.originFileObj) {
         imagemUrl = URL.createObjectURL(fileObj.originFileObj);
       } else if (fileObj.url) {
         imagemUrl = fileObj.url;
       }
     }
-    
-    setDepoimentos((prev) =>
-      prev.map((item) => 
-        item.key === editingDepoimento.key
+
+    setNoticias((prev) =>
+      prev.map((item) =>
+        item.key === editingNoticias.key
           ? {
               ...item,
-              nota: String(dados.depoimento_nota),
-              nome: dados.depoimento_nome,
-              mensagem: dados.depoimento_mensagem,
+              titulo: dados.noticia_titulo,
+              link: dados.noticia_link,
+              descricao: dados.noticia_descricao,
               imagem: imagemUrl,
             }
           : item
@@ -169,50 +169,50 @@ const Depoimentos = () => {
     form.resetFields()
     setVisibleCreate(false)
     setIsEditing(false)
-    setEditingDepoimento(null)
+    setEditingNoticias(null)
     api.success({
-      message: "Depoimento editado com sucesso!",
-      description: "Um depoimento foi atualizado na lista.",
+      message: "Notícia editada com sucesso!",
+      description: "Uma notícia foi atualizada na lista.",
     })
   }
 
   // DELETAR
   function handleDelete(key) {
-    setDepoimentos((prev) => prev.filter((item) => item.key !== key))
+    setNoticias((prev) => prev.filter((item) => item.key !== key))
 
     api.success({
-      message: "Depoimento excluído com sucesso!",
-      description: "Um depoimento foi removido da lista.",
+      message: "Notícia excluída com sucesso!",
+      description: "Uma notícia foi removida da lista.",
     })
   }
 
-  // BUSCAR DEPOIMENTOS
+  // BUSCAR NOTICIAS
   useEffect(() => {
-    fetch("http://localhost:3001/depoimentos")
+    fetch("http://localhost:3001/noticias")
       .then(res => res.json())
-      .then(data => setDepoimentos(data))
+      .then(data => setNoticias(data))
   }, [])
-  return (
+  return ( 
     <>
       <div>
         <div className="flex justify-between items-center mb-8">
-          <h1 className="text-lg text-bege font-bold">Depoimentos</h1>
+          <h1 className="text-lg text-bege font-bold">Notícias</h1>
           <Button
             type="primary"
             icon={<PlusCircleOutlined />}
             onClick={() => openDrawerCreate()}
           >
-            Novo Depoimento
+            Nova Notícia
           </Button>
         </div>
         <Table
-          dataSource={depoimentos}
+          dataSource={noticias}
           columns={colunas}
         />
       </div>
 
       <Drawer
-        title={isEditing ? "Editar Depoimento" : "Criar Depoimento"}
+        title={isEditing ? "Editar Notícia" : "Criar Notícia"}
         onClose={() => setVisibleCreate(false)}
         open={visibleCreate}
       >
@@ -220,35 +220,37 @@ const Depoimentos = () => {
           form={form}
           layout="vertical"
           onFinish={isEditing ? handleEdit : handleCreate}
-          initialValues={{ depoimento_nota: 5 }}
         >
           <Form.Item
-            label="Nota"
-            name={"depoimento_nota"}
+            label="Titulo"
+            name={"noticia_titulo"}
             rules={[{ required: true, message: "Campo obrigatório!" }]}
           >
-            <Rate allowHalf />
+            <Input placeholder="Título da notícia" />
           </Form.Item>
           <Form.Item
-            label="Nome"
-            name={"depoimento_nome"}
-            rules={[{ required: true, message: "Campo obrigatório!" }]}
+            label="Link"
+            name={"noticia_link"}
+            rules={[
+              { required: true, message: "Campo obrigatório!" },
+              { type: "url", message: "Digite um link válido!" }
+            ]}
           >
-            <Input placeholder="Nome do usuário" />
+            <Input placeholder="https://example.com" type="url" />
           </Form.Item>
           <Form.Item
-            label="Depoimento"
-            name={"depoimento_mensagem"}
+            label="Descrição"
+            name={"noticia_descricao"}
             rules={[{ required: true, message: "Campo obrigatório!" }]}
           >
-            <TextArea
+            <TextArea 
               rows={4}
-              placeholder="Mensagem"
+              placeholder="Descrição da notícia"
             />
           </Form.Item>
           <Form.Item
             label="Imagem"
-            name={"depoimento_imagem"}
+            name={"noticia_imagem"}
             valuePropName="fileList"
             getValueFromEvent={e => Array.isArray(e) ? e : e && e.fileList}
             rules={[{ required: true, message: "Campo obrigatório!" }]}
@@ -271,7 +273,7 @@ const Depoimentos = () => {
         </Form>
       </Drawer>
     </>
-  );
+   );
 }
-
-export default Depoimentos;
+ 
+export default Noticias;

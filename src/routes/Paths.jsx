@@ -1,9 +1,16 @@
-import { BrowserRouter, Route, Routes } from "react-router";
-import Login from "../pages/Login";
-import DashboardLayout from "../layouts/DashboardLayout";
-import Dashboard from "../pages/Dashboard";
-import Usuarios from "../pages/Usuarios";
-import Depoimentos from "../pages/Depoimentos";
+import { BrowserRouter, Route, Routes } from "react-router"
+import Login from "../pages/Login"
+import DashboardLayout from "../layouts/DashboardLayout"
+import Dashboard from "../pages/Dashboard"
+import Usuarios from "../pages/Usuarios"
+import Depoimentos from "../pages/Depoimentos"
+import Noticias from "../pages/Noticias"
+import Unidades from "../pages/Unidades"
+import Categorias from "../pages/Categorias"
+import Produtos from "../pages/Produtos"
+import Banners from "../pages/Banners"
+import Leads from "../pages/Leads"
+import Pictures from "../pages/Pictures"
 
 const Paths = () => {
     return (
@@ -13,7 +20,14 @@ const Paths = () => {
                 <Route path="/admin" element={<DashboardLayout />}>
                     <Route index element={<Dashboard />} />
                     <Route path="/admin/usuarios" element={<Usuarios />} />
+                    <Route path="/admin/categorias" element={<Categorias />} />
+                    <Route path="/admin/produtos" element={<Produtos />} />
+                    <Route path="/admin/unidades" element={<Unidades />} />
+                    <Route path="/admin/banners" element={<Banners />} />
                     <Route path="/admin/depoimentos" element={<Depoimentos />} />
+                    <Route path="/admin/noticias" element={<Noticias />} />
+                    <Route path="/admin/leads" element={<Leads />} />
+                    <Route path="/admin/pictures" element={<Pictures />} />
                 </Route>
             </Routes>
         </BrowserRouter>

@@ -1,0 +1,163 @@
+{
+  "usuarios": [
+    {
+      "key": 1,
+      "nome": "admin",
+      "email": "admin@email.com",
+      "senha": "admin123"
+    },
+    {
+      "key": 2,
+      "nome": "user",
+      "email": "user@email.com",
+      "senha": "user123"
+    }
+  ],
+  "categorias": [
+    { "key": 1, "nome": "Lançamentos" },
+    { "key": 2, "nome": "Expressos" },
+    { "key": 3, "nome": "Tiamatino Coffee" },
+    { "key": 4, "nome": "Tiamatino Cream" },
+    { "key": 5, "nome": "Bebidas Italianas" },
+    { "key": 6, "nome": "Cappuccino" },
+    { "key": 7, "nome": "Bebidas Geladas" }
+  ],
+  "produtos": [
+    {
+      "key": 1,
+      "nome": "Merry Berry",
+      "categoria_id": 1,
+      "descricao": "Descrição do Merry Berry",
+      "preco": "22.90",
+      "imagem": "https://placehold.co/60x60"
+    },
+    {
+      "key": 2,
+      "nome": "Tradicional",
+      "categoria_id": 2,
+      "descricao": "Descrição do Tradicional",
+      "preco": "7.90",
+      "imagem": "https://placehold.co/60x60"
+    }
+  ],
+  "unidades": [
+    {
+
+    }
+  ],
+  "banners": [
+    {
+      "key": 1,
+      "nome": "Um café quentinho aqui na Tiamate muda o dia.",
+      "imagem": "https://placehold.co/60x60",
+      "link": "http://grupogracom.com.br/promo_verao.html"
+    },
+    {
+      "key": 2,
+      "nome": "Mais que sabor, sentimentos!",
+      "imagem": "https://placehold.co/60x60",
+      "link": "http://grupogracom.com.br/novidades_cardapio.html"
+    }
+  ],
+  "depoimentos": [
+    {
+      "key": 1,
+      "nota": "5",
+      "nome": "Kalil Sousa",
+      "mensagem": "O café é realmente bom, e os salgados também (pedi um croissant de 4 queijos). Já havia pedido antes via iFood mas resolvi fazer uma visita enquanto andava pelo Centro, o café fica mesmo ao lado da Praça do Ferreira. Vale a pena dar uma visitada quando quiser se refrescar com um café gelado deles ou tomar um café da manhã por lá.",
+      "imagem": "https://placehold.co/60x60"
+    },
+    {
+      "key": 2,
+      "nota": "4",
+      "nome": "Eleonora Pereira",
+      "mensagem": "Excelente café no Centro da cidade. Vale a pena uma passará para quem estiver passando pela região.",
+      "imagem": "https://placehold.co/60x60"
+    },
+    {
+      "key": 3,
+      "nota": "4,5",
+      "nome": "Alkaline Fernandes",
+      "mensagem": "Ótimo lugar para descansar tomando aquele café, cappuccino, matte, tiamatte...😍 meu refúgio de descanso em meio ao turbulento centro de Fortal City! rs",
+      "imagem": "https://placehold.co/60x60"
+    },
+    {
+      "key": 4,
+      "nota": "5",
+      "nome": "Rochelly Beviláqua",
+      "mensagem": "Ambiente agradável, limpo, bem arrumado e com ótimas opções de lanche. Mesas organizadas, decoração bonita, atendimento rápido 😍😍😍",
+      "imagem": "https://placehold.co/60x60"
+    },
+    {
+      "key": 5,
+      "nota": "4",
+      "nome": "Manoel Costa",
+      "mensagem": "Ambiente agradável e uma boa variedade de sabores e apresentações de café. Também os bolos e tortas merecem atenção por combinar muito bem com as bebidas quentes disponíveis na casa. A localização estratégica - bem perto da Praça do Ferreira - permite fácil acesso a pé para quem está no Centro de Fortaleza.",
+      "imagem": "https://placehold.co/60x60"
+    },
+    {
+      "key": 6,
+      "nota": "4,5",
+      "nome": "Nágela Marques",
+      "mensagem": "Melhor local para tomar café no coração de Fortaleza, ambiente bem climatizado e ótimos atendentes, passo horas por lá sempre quando dá.Super indico ❤️❤️ aos amantes de café com estilo.",
+      "imagem": "https://placehold.co/60x60"
+    }
+  ],
+  "noticias": [
+    {
+      "key": 1,
+      "titulo": "Conheça cinco lugares no centro para ir com os amigos",
+      "link": "http://grupogracom.com.br/lugares-fortaleza.html",
+      "imagem": "https://placehold.co/60x60",
+      "descricao": "Descrição da notícia 1"
+    },
+    {
+      "key": 2,
+      "titulo": "Um gostinho moderno no coração de Fortaleza",
+      "link": "http://grupogracom.com.br/tiamate_moderno.html",
+      "imagem": "https://placehold.co/60x60",
+      "descricao": "Descrição da notícia 2"
+    },
+    {
+      "key": 3,
+      "titulo": "Cafeteria é nova tendência de negócio em Salvador",
+      "link": "http://grupogracom.com.br/atarde.html",
+      "imagem": "https://placehold.co/60x60",
+      "descricao": "Descrição da notícia 3"
+    }
+  ],
+  "leads": [
+    {
+      "key": 1,
+      "nome": "João Silva",
+      "email": "joao.silva@email.com",
+      "telefone": "85999999999",
+      "cidade": "Fortaleza",
+      "estado": "CE",
+      "midia": "Instagram"
+    },
+    {
+      "key": 2,
+      "nome": "Maria Oliveira",
+      "email": "maria.oliveira@email.com",
+      "telefone": "85988888888",
+      "cidade": "Eusebio",
+      "estado": "CE",
+      "midia": "Linkedin"
+    },
+    {
+      "key": 3,
+      "nome": "Alkaline Fernandes",
+      "email": "alkaline.fernandes@email.com",
+      "telefone": "85977777777",
+      "cidade": "Fortaleza",
+      "estado": "CE",
+      "midia": "TV"
+    }
+  ],
+  "pictures": [
+    {
+
+    }
+  ]
+}

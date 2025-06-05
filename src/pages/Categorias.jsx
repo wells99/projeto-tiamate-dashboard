@@ -3,33 +3,20 @@ import { AntContext } from "../contexts/AntContext"
 import { Button, Drawer, Form, Input, Popconfirm, Table } from "antd"
 import { DeleteFilled, EditFilled, PlusCircleOutlined } from "@ant-design/icons"
 
-const Usuarios = () => {
+const Categorias = () => {
   const [visibleCreate, setVisibleCreate] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
-  const [editingUsuario, setEditingUsuario] = useState(null)
+  const [editingCategoria, setEditingCategoria] = useState(null)
   const { api } = useContext(AntContext)
   const [form] = Form.useForm()
-  const [dadosUsuarios, setDadosUsuarios] = useState([])
+  const [categorias, setCategorias] = useState([])
 
   // COLUNAS DA TABELA
   const colunas = [
     {
       title: "Nome",
       dataIndex: "nome",
-      key: "usuario_nome",
-      width: "30%",
-    },
-    {
-      title: "Email",
-      dataIndex: "email",
-      key: "usuario_email",
-      width: "40%",
-    },
-    {
-      title: "Senha",
-      dataIndex: "senha",
-      key: "usuario_senha",
-      width: "21%",
+      key: "categoria_nome",
     },
     {
       title: "Opções",
@@ -60,52 +47,46 @@ const Usuarios = () => {
   function openDrawerCreate() {
     setVisibleCreate(true)
     setIsEditing(false)
-    setEditingUsuario(null)
+    setEditingCategoria(null)
     form.resetFields()
   }
 
   // CRIAR
   function handleCreate(dados) {
-    setDadosUsuarios((prev) => [
+    setCategorias((prev) => [
       ...prev,
       {
         key: prev.length + 1,
-        nome: dados.usuario_nome,
-        email: dados.usuario_email,
-        senha: dados.usuario_senha,
+        nome: dados.categoria_nome,
       },
     ])
     form.resetFields()
     setVisibleCreate(false)
 
     api.success({
-      message: "Usuario criado com sucesso!",
-      description: "Um usuario foi adicionado a lista.",
+      message: "Categoria criada com sucesso!",
+      description: "Uma categoria foi adicionada a lista.",
     })
   }
 
   // ABRIR EDITAR
   function openDrawerEdit(record) {
     setIsEditing(true)
-    setEditingUsuario(record)
+    setEditingCategoria(record)
     setVisibleCreate(true)
     form.setFieldsValue({
-      usuario_nome: record.nome,
-      usuario_email: record.email,
-      usuario_senha: record.senha,
+      categoria_nome: record.nome,
     })
   }
 
   // EDITAR
   function handleEdit(dados) {
-    setDadosUsuarios((prev) =>
+    setCategorias((prev) =>
       prev.map((item) =>
-        item.key === editingUsuario.key
+        item.key === editingCategoria.key
           ? {
               ...item,
-              nome: dados.usuario_nome,
-              email: dados.usuario_email,
-              senha: dados.usuario_senha,
+              nome: dados.categoria_nome,
             }
           : item
       )
@@ -113,50 +94,50 @@ const Usuarios = () => {
     form.resetFields()
     setVisibleCreate(false)
     setIsEditing(false)
-    setEditingUsuario(null)
+    setEditingCategoria(null)
     api.success({
-      message: "Usuario editado com sucesso!",
-      description: "Um usuario foi atualizado na lista.",
+      message: "Categoria editada com sucesso!",
+      description: "Uma categoria foi atualizada na lista.",
     })
   }
 
   // DELETAR
   function handleDelete(key) {
-    setDadosUsuarios((prev) => prev.filter((item) => item.key !== key))
+    setCategorias((prev) => prev.filter((item) => item.key !== key))
 
     api.success({
-      message: "Usuario excluído com sucesso!",
-      description: "Um usuario foi removido da lista.",
+      message: "Categoria excluída com sucesso!",
+      description: "Uma categoria foi removida da lista.",
     })
   }
 
-  // BUSCAR USUARIOS
+  // BUSCAR CATEGORIAS
   useEffect(() => {
-    fetch("http://localhost:3001/usuarios")
+    fetch("http://localhost:3001/categorias")
       .then(res => res.json())
-      .then(data => setDadosUsuarios(data))
+      .then(data => setCategorias(data))
   }, [])
   return ( 
     <>
       <div>
         <div className="flex justify-between items-center mb-8">
-          <h1 className="text-lg text-bege font-bold">Usuarios</h1>
+          <h1 className="text-lg text-bege font-bold">Categorias</h1>
           <Button
             type="primary"
             icon={<PlusCircleOutlined />}
             onClick={() => openDrawerCreate()}
           >
-            Novo Usuario
+            Nova Categoria
           </Button>
         </div>
         <Table
-          dataSource={dadosUsuarios}
+          dataSource={categorias}
           columns={colunas}
         />
       </div>
 
       <Drawer
-        title={isEditing ? "Editar Usuario" : "Criar Usuario"}
+        title={isEditing ? "Editar Categoria" : "Criar Categoria"}
         onClose={() => setVisibleCreate(false)}
         open={visibleCreate}
       >
@@ -167,24 +148,10 @@ const Usuarios = () => {
         >
           <Form.Item
             label="Nome"
-            name={"usuario_nome"}
+            name={"categoria_nome"}
             rules={[{ required: true, message: "Campo obrigatório!" }]}
           >
-            <Input placeholder="Nome do usuário" />
-          </Form.Item>
-          <Form.Item
-            label="Email"
-            name={"usuario_email"}
-            rules={[{ required: true, message: "Campo obrigatório!" }]}
-          >
-            <Input placeholder="Email do usuário" />
-          </Form.Item>
-          <Form.Item
-            label="Senha"
-            name={"usuario_senha"}
-            rules={[{ required: true, message: "Campo obrigatório!" }]}
-          >
-            <Input.Password placeholder="Senha do usuário" />
+            <Input placeholder="Nome da categoria" />
           </Form.Item>
           <Button
             type="primary"
@@ -199,4 +166,4 @@ const Usuarios = () => {
    );
 }
  
-export default Usuarios;
+export default Categorias;
