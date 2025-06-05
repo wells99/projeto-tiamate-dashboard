@@ -1,50 +1,56 @@
 import { useState, useContext, useEffect } from "react"
 import { AntContext } from "../contexts/AntContext"
-import { Button, Drawer, Form, Input, Popconfirm, Rate, Table, Image, Upload } from "antd"
+import { Button, Drawer, Form, Input, Popconfirm, Table, Image, Upload, InputNumber, Select } from "antd"
 import { DeleteFilled, EditFilled, PlusCircleOutlined, UploadOutlined } from "@ant-design/icons"
 import TextArea from "antd/es/input/TextArea"
 
-const Depoimentos = () => {
+const Produtos = () => {
   const [visibleCreate, setVisibleCreate] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
-  const [editingDepoimento, setEditingDepoimento] = useState(null)
+  const [editingProduto, setEditingProduto] = useState(null)
   const { api } = useContext(AntContext)
   const [form] = Form.useForm()
-  const [depoimentos, setDepoimentos] = useState([])
+  const [produtos, setProdutos] = useState([])
+  const [categorias, setCategorias] = useState([])
 
   // COLUNAS DA TABELA
   const colunas = [
     {
-      title: "Nota",
-      dataIndex: "nota",
-      key: "depoimento_nota",
-      width: "8%",
-      align: "center",
-    },
-    {
       title: "Nome",
       dataIndex: "nome",
-      key: "depoimento_nome",
+      key: "produto_nome",
       width: "20%",
-      ellipsis: true,
     },
     {
-      title: "Depoimento",
-      dataIndex: "mensagem",
-      key: "depoimento_mensagem",
-      width: "53%",
-      ellipsis: true,
+      title: "Categoria",
+      dataIndex: "categoria_id",
+      key: "produto_categoria",
+      width: "10%",
+      render: (id) => categorias.find(cat => cat.key === id)?.nome || "Não definida",
+    },
+    {
+      title: "Descrição",
+      dataIndex: "descricao",
+      key: "produto_descricao",
+      width: "41%",
+    },
+    {
+      title: "Preço",
+      dataIndex: "preco",
+      key: "produto_preco",
+      width: "10%",
+      render: (preco) => `R$ ${Number(preco).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`,
     },
     {
       title: "Imagem",
       dataIndex: "imagem",
-      key: "depoimento_imagem",
+      key: "produto_imagem",
       width: "10%",
       align: "center",
       render: (imagem) => (
         <Image 
           src={imagem}
-          alt="Depoimento"
+          alt="Produto"
           width={60}
           height={60}
           style={{ objectFit: "cover", borderRadius: 8 }}
@@ -80,7 +86,7 @@ const Depoimentos = () => {
   function openDrawerCreate() {
     setVisibleCreate(true)
     setIsEditing(false)
-    setEditingDepoimento(null)
+    setEditingProduto(null)
     form.resetFields()
   }
 
@@ -88,21 +94,22 @@ const Depoimentos = () => {
   function handleCreate(dados) {
     let imagemUrl = ""
     if (
-      dados.depoimento_imagem &&
-      Array.isArray(dados.depoimento_imagem) &&
-      dados.depoimento_imagem.length > 0
+      dados.produto_imagem &&
+      Array.isArray(dados.produto_imagem) &&
+      dados.produto_imagem.length > 0
     ) {
-      const file = dados.depoimento_imagem[0].originFileObj
+      const file = dados.produto_imagem[0].originFileObj
       imagemUrl = URL.createObjectURL(file)
     }
 
-    setDepoimentos((prev) => [
+    setProdutos((prev) => [
       ...prev,
       {
         key: prev.length + 1,
-        nota: String(dados.depoimento_nota),
-        nome: dados.depoimento_nome,
-        mensagem: dados.depoimento_mensagem,
+        nome: dados.produto_nome,
+        descricao: dados.produto_descricao,
+        preco: dados.produto_preco,
+        categoria_id: dados.categoria_id,
         imagem: imagemUrl,
       },
     ])
@@ -110,21 +117,22 @@ const Depoimentos = () => {
     setVisibleCreate(false)
 
     api.success({
-      message: "Depoimento criado com sucesso!",
-      description: "Um depoimento foi adicionado a lista.",
+      message: "Produto criado com sucesso!",
+      description: "Um produto foi adicionado a lista.",
     })
   }
 
   // ABRIR EDITAR
   function openDrawerEdit(record) {
     setIsEditing(true)
-    setEditingDepoimento(record)
+    setEditingProduto(record)
     setVisibleCreate(true)
     form.setFieldsValue({
-      depoimento_nota: Number(record.nota),
-      depoimento_nome: record.nome,
-      depoimento_mensagem: record.mensagem,
-      depoimento_imagem: record.imagem 
+      produto_nome: record.nome,
+      produto_descricao: record.descricao,
+      produto_preco: record.preco,
+      categoria_id: record.categoria_id,
+      produto_imagem: record.imagem
         ? [
             {
               uid: "-1",
@@ -139,13 +147,13 @@ const Depoimentos = () => {
 
   // EDITAR
   function handleEdit(dados) {
-    let imagemUrl = editingDepoimento.imagem;
+    let imagemUrl = editingProduto.imagem;
     if (
-      dados.depoimento_imagem &&
-      Array.isArray(dados.depoimento_imagem) &&
-      dados.depoimento_imagem.length > 0
+      dados.produto_imagem &&
+      Array.isArray(dados.produto_imagem) &&
+      dados.produto_imagem.length > 0
     ) {
-      const fileObj = dados.depoimento_imagem[0];
+      const fileObj = dados.produto_imagem[0];
       if (fileObj.originFileObj) {
         imagemUrl = URL.createObjectURL(fileObj.originFileObj);
       } else if (fileObj.url) {
@@ -153,14 +161,15 @@ const Depoimentos = () => {
       }
     }
     
-    setDepoimentos((prev) =>
-      prev.map((item) => 
-        item.key === editingDepoimento.key
+    setProdutos((prev) =>
+      prev.map((item) =>
+        item.key === editingProduto.key
           ? {
               ...item,
-              nota: String(dados.depoimento_nota),
-              nome: dados.depoimento_nome,
-              mensagem: dados.depoimento_mensagem,
+              nome: dados.produto_nome,
+              descricao: dados.produto_descricao,
+              preco: dados.produto_preco,
+              categoria_id: dados.categoria_id,
               imagem: imagemUrl,
             }
           : item
@@ -169,50 +178,57 @@ const Depoimentos = () => {
     form.resetFields()
     setVisibleCreate(false)
     setIsEditing(false)
-    setEditingDepoimento(null)
+    setEditingProduto(null)
     api.success({
-      message: "Depoimento editado com sucesso!",
-      description: "Um depoimento foi atualizado na lista.",
+      message: "Produto editado com sucesso!",
+      description: "Um produto foi atualizado na lista.",
     })
   }
 
   // DELETAR
   function handleDelete(key) {
-    setDepoimentos((prev) => prev.filter((item) => item.key !== key))
+    setProdutos((prev) => prev.filter((item) => item.key !== key))
 
     api.success({
-      message: "Depoimento excluído com sucesso!",
-      description: "Um depoimento foi removido da lista.",
+      message: "Produto excluído com sucesso!",
+      description: "Um produto foi removido da lista.",
     })
   }
 
-  // BUSCAR DEPOIMENTOS
+  // BUSCAR PRODUTOS
   useEffect(() => {
-    fetch("http://localhost:3001/depoimentos")
+    fetch("http://localhost:3001/produtos")
       .then(res => res.json())
-      .then(data => setDepoimentos(data))
+      .then(data => setProdutos(data))
   }, [])
-  return (
+
+  // BUSCAR CATEGORIAS
+  useEffect(() => {
+    fetch("http://localhost:3001/categorias")
+      .then(res => res.json())
+      .then(data => setCategorias(data))
+  }, [])
+  return ( 
     <>
       <div>
         <div className="flex justify-between items-center mb-8">
-          <h1 className="text-lg text-bege font-bold">Depoimentos</h1>
+          <h1 className="text-lg text-bege font-bold">produtos</h1>
           <Button
             type="primary"
             icon={<PlusCircleOutlined />}
             onClick={() => openDrawerCreate()}
           >
-            Novo Depoimento
+            Novo Produto
           </Button>
         </div>
         <Table
-          dataSource={depoimentos}
+          dataSource={produtos}
           columns={colunas}
         />
       </div>
 
       <Drawer
-        title={isEditing ? "Editar Depoimento" : "Criar Depoimento"}
+        title={isEditing ? "Editar Produto" : "Criar Produto"}
         onClose={() => setVisibleCreate(false)}
         open={visibleCreate}
       >
@@ -220,35 +236,54 @@ const Depoimentos = () => {
           form={form}
           layout="vertical"
           onFinish={isEditing ? handleEdit : handleCreate}
-          initialValues={{ depoimento_nota: 5 }}
         >
           <Form.Item
-            label="Nota"
-            name={"depoimento_nota"}
-            rules={[{ required: true, message: "Campo obrigatório!" }]}
-          >
-            <Rate allowHalf />
-          </Form.Item>
-          <Form.Item
             label="Nome"
-            name={"depoimento_nome"}
+            name={"produto_nome"}
             rules={[{ required: true, message: "Campo obrigatório!" }]}
           >
-            <Input placeholder="Nome do usuário" />
+            <Input placeholder="Nome do produto" />
           </Form.Item>
           <Form.Item
-            label="Depoimento"
-            name={"depoimento_mensagem"}
+            label="Preço"
+            name={"produto_preco"}
+            rules={[{ required: true, message: "Campo obrigatório!" }]}
+          >
+            <InputNumber
+              min={0}
+              step={0.01}
+              style={{ width: "100%" }}
+              stringMode
+              placeholder="Preço do produto"
+              prefix="R$"
+            />
+          </Form.Item>
+          <Form.Item
+            label="Categoria"
+            name={"categoria_id"}
+            rules={[{ required: true, message: "Campo obrigatório!" }]}
+          >
+            <Select placeholder="Selecione a categoria">
+              {categorias.map(cat => (
+                <Select.Option key={cat.key} value={cat.key}>
+                  {cat.nome}
+                </Select.Option>
+              ))}
+            </Select>
+          </Form.Item>
+          <Form.Item
+            label="Descrição"
+            name={"produto_descricao"}
             rules={[{ required: true, message: "Campo obrigatório!" }]}
           >
             <TextArea
               rows={4}
-              placeholder="Mensagem"
+              placeholder="Descrição do produto"
             />
           </Form.Item>
           <Form.Item
             label="Imagem"
-            name={"depoimento_imagem"}
+            name={"produto_imagem"}
             valuePropName="fileList"
             getValueFromEvent={e => Array.isArray(e) ? e : e && e.fileList}
             rules={[{ required: true, message: "Campo obrigatório!" }]}
@@ -271,7 +306,7 @@ const Depoimentos = () => {
         </Form>
       </Drawer>
     </>
-  );
+   );
 }
-
-export default Depoimentos;
+ 
+export default Produtos;
