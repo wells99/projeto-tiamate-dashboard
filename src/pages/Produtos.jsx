@@ -16,6 +16,22 @@ const Produtos = () => {
   // COLUNAS DA TABELA
   const colunas = [
     {
+      title: "Imagem",
+      dataIndex: "imagem",
+      key: "produto_imagem",
+      width: "10%",
+      align: "center",
+      render: (imagem) => (
+        <Image 
+          src={imagem}
+          alt="Produto"
+          width={60}
+          height={60}
+          style={{ objectFit: "cover", borderRadius: 8 }}
+        />
+      )
+    },
+    {
       title: "Nome",
       dataIndex: "nome",
       key: "produto_nome",
@@ -40,22 +56,6 @@ const Produtos = () => {
       key: "produto_preco",
       width: "10%",
       render: (preco) => `R$ ${Number(preco).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`,
-    },
-    {
-      title: "Imagem",
-      dataIndex: "imagem",
-      key: "produto_imagem",
-      width: "10%",
-      align: "center",
-      render: (imagem) => (
-        <Image 
-          src={imagem}
-          alt="Produto"
-          width={60}
-          height={60}
-          style={{ objectFit: "cover", borderRadius: 8 }}
-        />
-      )
     },
     {
       title: "Opções",
