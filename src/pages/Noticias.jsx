@@ -15,6 +15,22 @@ const Noticias = () => {
   // COLUNAS DA TABELA
   const colunas = [
     {
+      title: "Imagem",
+      dataIndex: "imagem",
+      key: "noticia_imagem",
+      width: "10%",
+      align: "center",
+      render: (imagem) => (
+        <Image 
+          src={imagem}
+          alt="Noticia"
+          width={60}
+          height={60}
+          style={{ objectFit: "cover", borderRadius: 8 }}
+        />
+      )
+    },
+    {
       title: "Titulo",
       dataIndex: "titulo",
       key: "noticia_titulo",
@@ -34,22 +50,6 @@ const Noticias = () => {
       key: "noticia_descricao",
       width: "41%",
       ellipsis: true,
-    },
-    {
-      title: "Imagem",
-      dataIndex: "imagem",
-      key: "noticia_imagem",
-      width: "10%",
-      align: "center",
-      render: (imagem) => (
-        <Image 
-          src={imagem}
-          alt="Noticia"
-          width={60}
-          height={60}
-          style={{ objectFit: "cover", borderRadius: 8 }}
-        />
-      )
     },
     {
       title: "Opções",
@@ -189,6 +189,7 @@ const Noticias = () => {
   // BUSCAR NOTICIAS
   useEffect(() => {
     fetch("http://localhost:3001/noticias")
+    // fetch("https://projeto-tiamate-back.onrender.com/noticias")
       .then(res => res.json())
       .then(data => setNoticias(data))
   }, [])

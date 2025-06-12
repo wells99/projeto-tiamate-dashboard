@@ -198,6 +198,7 @@ const Produtos = () => {
   // BUSCAR PRODUTOS
   useEffect(() => {
     fetch("http://localhost:3001/produtos")
+    // fetch("https://projeto-tiamate-back.onrender.com/produtos")
       .then(res => res.json())
       .then(data => setProdutos(data))
   }, [])
@@ -205,6 +206,7 @@ const Produtos = () => {
   // BUSCAR CATEGORIAS
   useEffect(() => {
     fetch("http://localhost:3001/categorias")
+    // fetch("https://projeto-tiamate-back.onrender.com/categorias")
       .then(res => res.json())
       .then(data => setCategorias(data))
   }, [])

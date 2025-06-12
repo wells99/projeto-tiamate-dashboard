@@ -1,14 +1,11 @@
+import * as XLSX from "xlsx"
 import { useState, useContext, useEffect } from "react"
 import { AntContext } from "../contexts/AntContext"
-import { Button, Drawer, Form, Input, Popconfirm, Select, Table } from "antd"
-import { DeleteFilled, EditFilled, PlusCircleOutlined } from "@ant-design/icons"
+import { Button, Popconfirm, Table } from "antd"
+import { DeleteFilled } from "@ant-design/icons"
 
 const Leads = () => {
-  const [visibleCreate, setVisibleCreate] = useState(false)
-  const [isEditing, setIsEditing] = useState(false)
-  const [editingLead, setEditingLead] = useState(null)
   const { api } = useContext(AntContext)
-  const [form] = Form.useForm()
   const [leads, setLeads] = useState([])
 
   // COLUNAS DA TABELA
@@ -64,18 +61,15 @@ const Leads = () => {
       width: "9%",
       align: "center",
       render: (_, record) => (
-        <div className="flex justify-between">
-          <div className="w-[30px] h-[30px] flex justify-center items-center cursor-pointer duration-150 border border-transparent rounded-full hover:border-marrom group" onClick={() => openDrawerEdit(record)}>
-            <EditFilled className=" duration-150 !text-bege group-hover:!text-marrom" />
-          </div>
+        <div className="flex items-center justify-center h-full">
           <Popconfirm
             title="Deseja excluir?"
             okText="Sim"
             cancelText="Não"
             onConfirm={() => handleDelete(record.key)}
           >
-            <div className="w-[30px] h-[30px] flex justify-center items-center cursor-pointer duration-150 border border-transparent rounded-full hover:border-marrom group">
-              <DeleteFilled className=" duration-150 !text-bege group-hover:!text-marrom" />
+            <div className="w-[30px] h-[30px] flex items-center justify-center cursor-pointer duration-150 border border-transparent rounded-full hover:border-marrom group">
+              <DeleteFilled className="duration-150 !text-bege group-hover:!text-marrom" />
             </div>
           </Popconfirm>
         </div>
@@ -83,77 +77,13 @@ const Leads = () => {
     },
   ]
 
-  // ABRIR CRIAR
-  function openDrawerCreate() {
-    setVisibleCreate(true)
-    setIsEditing(false)
-    setEditingLead(null)
-    form.resetFields()
-  }
-
-  // CRIAR
-  function handleCreate(dados) {
-    setLeads((prev) => [
-      ...prev,
-      {
-        key: prev.length + 1,
-        nome: dados.lead_nome,
-        email: dados.lead_email,
-        telefone: dados.lead_telefone,
-        cidade: dados.lead_cidade,
-        estado: dados.lead_estado,
-        midia: dados.lead_midia,
-      },
-    ])
-    form.resetFields()
-    setVisibleCreate(false)
-
-    api.success({
-      message: "Lead criada com sucesso!",
-      description: "Uma lead foi adicionada a lista.",
-    })
-  }
-
-  // ABRIR EDITAR
-  function openDrawerEdit(record) {
-    setIsEditing(true)
-    setEditingLead(record)
-    setVisibleCreate(true)
-    form.setFieldsValue({
-      lead_nome: record.nome,
-      lead_email: record.email,
-      lead_telefone: record.telefone,
-      lead_cidade: record.cidade,
-      lead_estado: record.estado,
-      lead_midia: record.midia,
-    })
-  }
-
-  // EDITAR
-  function handleEdit(dados) {
-    setLeads((prev) =>
-      prev.map((item) =>
-        item.key === editingLead.key
-          ? {
-              ...item,
-              nome: dados.lead_nome,
-              email: dados.lead_email,
-              telefone: dados.lead_telefone,
-              cidade: dados.lead_cidade,
-              estado: dados.lead_estado,
-              midia: dados.lead_midia,
-            }
-          : item
-      )
-    )
-    form.resetFields()
-    setVisibleCreate(false)
-    setIsEditing(false)
-    setEditingLead(null)
-    api.success({
-      message: "Lead editada com sucesso!",
-      description: "Uma lead foi atualizada na lista.",
-    })
+  // EXPORTAR EXCEL
+  function exportToExcel() {
+    const dataToExport = leads.map(({ key, ...rest }) => rest)
+    const worksheet = XLSX.utils.json_to_sheet(dataToExport)
+    const workbook = XLSX.utils.book_new()
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Leads")
+    XLSX.writeFile(workbook, "leads.xlsx")
   }
 
   // DELETAR
@@ -169,6 +99,7 @@ const Leads = () => {
   // BUSCAR LEADS
   useEffect(() => {
     fetch("http://localhost:3001/Leads")
+    // fetch("https://projeto-tiamate-back.onrender.com/leads")
       .then(res => res.json())
       .then(data => setLeads(data))
   }, [])
@@ -179,10 +110,9 @@ const Leads = () => {
           <h1 className="text-lg text-bege font-bold">Leads</h1>
           <Button
             type="primary"
-            icon={<PlusCircleOutlined />}
-            onClick={() => openDrawerCreate()}
+            onClick={exportToExcel}
           >
-            Nova Lead
+            Exportar Excel
           </Button>
         </div>
         <Table
@@ -190,79 +120,6 @@ const Leads = () => {
           columns={colunas}
         />
       </div>
-
-      <Drawer
-        title={isEditing ? "Editar Lead" : "Criar Lead"}
-        onClose={() => setVisibleCreate(false)}
-        open={visibleCreate}
-      >
-        <Form
-          form={form}
-          layout="vertical"
-          onFinish={isEditing ? handleEdit : handleCreate}
-        >
-          <Form.Item
-            label="Nome"
-            name="lead_nome"
-            rules={[{ required: true, message: "Campo obrigatório!" }]}
-          >
-            <Input placeholder="Digite o nome" />
-          </Form.Item>
-          <Form.Item
-            label="Email"
-            name="lead_email"
-            rules={[{ required: true, message: "Campo obrigatório!" }]}
-          >
-            <Input placeholder="Digite o email" />
-          </Form.Item>
-          <Form.Item
-            label="Telefone"
-            name="lead_telefone"
-            rules={[{ required: true, message: "Campo obrigatório!" }]}
-          >
-            <Input placeholder="Digite o telefone" />
-          </Form.Item>
-          <Form.Item
-            label="Cidade"
-            name="lead_cidade"
-            rules={[{ required: true, message: "Campo obrigatório!" }]}
-          >
-            <Select placeholder="Selecione a cidade">
-              <Select.Option value="Fortaleza">Fortaleza</Select.Option>
-              <Select.Option value="Eusebio">Eusebio</Select.Option>
-            </Select>
-          </Form.Item>
-          <Form.Item
-            label="Estado"
-            name="lead_estado"
-            rules={[{ required: true, message: "Campo obrigatório!" }]}
-          >
-            <Select placeholder="Selecione o estado">
-              <Select.Option value="CE">CE</Select.Option>
-              <Select.Option value="SP">SP</Select.Option>
-              <Select.Option value="RJ">RJ</Select.Option>
-            </Select>
-          </Form.Item>
-          <Form.Item
-            label="Mídia"
-            name="lead_midia"
-            rules={[{ required: true, message: "Campo obrigatório!" }]}
-          >
-            <Select placeholder="Selecione a mídia">
-              <Select.Option value="Instagram">Instagram</Select.Option>
-              <Select.Option value="Linkedin">Linkedin</Select.Option>
-              <Select.Option value="TV">TV</Select.Option>
-            </Select>
-          </Form.Item>
-          <Button
-            type="primary"
-            className="w-full"
-            htmlType="submit"
-          >
-            {isEditing ? "Editar" : "Criar"}
-          </Button>
-        </Form>
-      </Drawer>
     </>
   );
 }

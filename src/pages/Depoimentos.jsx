@@ -15,6 +15,22 @@ const Depoimentos = () => {
   // COLUNAS DA TABELA
   const colunas = [
     {
+      title: "Imagem",
+      dataIndex: "imagem",
+      key: "depoimento_imagem",
+      width: "10%",
+      align: "center",
+      render: (imagem) => (
+        <Image 
+          src={imagem}
+          alt="Depoimento"
+          width={60}
+          height={60}
+          style={{ objectFit: "cover", borderRadius: 8 }}
+        />
+      )
+    },
+    {
       title: "Nota",
       dataIndex: "nota",
       key: "depoimento_nota",
@@ -34,22 +50,6 @@ const Depoimentos = () => {
       key: "depoimento_mensagem",
       width: "53%",
       ellipsis: true,
-    },
-    {
-      title: "Imagem",
-      dataIndex: "imagem",
-      key: "depoimento_imagem",
-      width: "10%",
-      align: "center",
-      render: (imagem) => (
-        <Image 
-          src={imagem}
-          alt="Depoimento"
-          width={60}
-          height={60}
-          style={{ objectFit: "cover", borderRadius: 8 }}
-        />
-      )
     },
     {
       title: "Opções",
@@ -189,6 +189,7 @@ const Depoimentos = () => {
   // BUSCAR DEPOIMENTOS
   useEffect(() => {
     fetch("http://localhost:3001/depoimentos")
+    // fetch("https://projeto-tiamate-back.onrender.com/depoimentos")
       .then(res => res.json())
       .then(data => setDepoimentos(data))
   }, [])
