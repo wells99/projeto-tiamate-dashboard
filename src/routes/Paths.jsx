@@ -9,6 +9,7 @@ import Unidades from "../pages/Unidades"
 import Categorias from "../pages/Categorias"
 import Produtos from "../pages/Produtos"
 import Banners from "../pages/Banners"
+import Redes from "../pages/Redes"
 import Leads from "../pages/Leads"
 import Pictures from "../pages/Pictures"
 
@@ -24,6 +25,7 @@ const Paths = () => {
                     <Route path="/admin/produtos" element={<Produtos />} />
                     <Route path="/admin/unidades" element={<Unidades />} />
                     <Route path="/admin/banners" element={<Banners />} />
+                    <Route path="/admin/redes" element={<Redes />} />
                     <Route path="/admin/depoimentos" element={<Depoimentos />} />
                     <Route path="/admin/noticias" element={<Noticias />} />
                     <Route path="/admin/leads" element={<Leads />} />

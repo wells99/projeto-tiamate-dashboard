@@ -42,21 +42,58 @@
   ],
   "unidades": [
     {
-
+      "key": 1,
+      "endereco": "Rua General Eurico",
+      "cidade": "Fortaleza",
+      "estado": "CE",
+      "cep": "60175160",
+      "horario_semana": "08:00 - 18:00",
+      "horario_fds": "08:00 - 17:00",
+      "maps": "https://maps.app.goo.gl/dncQ9hZPpLGzLvQc9"
+    },
+    {
+      "key": 2,
+      "endereco": "Rua Via Coletora B",
+      "cidade": "Santo Antônio de Jesus",
+      "estado": "BA",
+      "cep": "44444444",
+      "horario_semana": "08:00 - 18:00",
+      "horario_fds": "08:00 - 17:00",
+      "maps": "https://maps.app.goo.gl/dncQ9hZPpLGzLvQc9"
     }
   ],
   "banners": [
     {
       "key": 1,
       "nome": "Um café quentinho aqui na Tiamate muda o dia.",
-      "imagem": "https://placehold.co/60x60",
-      "link": "http://grupogracom.com.br/promo_verao.html"
+      "imagem": "https://placehold.co/60x60"
     },
     {
       "key": 2,
       "nome": "Mais que sabor, sentimentos!",
-      "imagem": "https://placehold.co/60x60",
-      "link": "http://grupogracom.com.br/novidades_cardapio.html"
+      "imagem": "https://placehold.co/60x60"
+    }
+  ],
+  "redes": [
+    {
+      "key": 1,
+      "nome": "Facebook",
+      "link": "http://facebook.com"
+    },
+    {
+      "key": 2,
+      "nome": "Instagram",
+      "link": "http://instagram.com"
+    },
+    {
+      "key": 3,
+      "nome": "Youtube",
+      "link": "http://youtube.com"
+    },
+    {
+      "key": 4,
+      "nome": "Linkedin",
+      "link": "http://linkedin.com"
     }
   ],
   "depoimentos": [
@@ -157,7 +194,14 @@
   ],
   "pictures": [
     {
-
+      "key": 1,
+      "nome": "Maria tomando expresso.",
+      "imagem": "https://placehold.co/60x60"
+    },
+    {
+      "key": 2,
+      "nome": "José tomando tiamatino.",
+      "imagem": "https://placehold.co/60x60"
     }
   ]
 }

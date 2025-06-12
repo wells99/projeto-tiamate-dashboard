@@ -1,6 +1,6 @@
 import { NavLink } from "react-router"
 import logo from "../assets/logo.png"
-import { AppstoreOutlined, CommentOutlined, FileImageOutlined, MailOutlined, PictureOutlined, PieChartOutlined, ReadOutlined, ShopOutlined, ShoppingOutlined, UserOutlined } from "@ant-design/icons"
+import { AppstoreOutlined, CommentOutlined, FileImageOutlined, MailOutlined, PictureOutlined, PieChartOutlined, ReadOutlined, ShopOutlined, ShoppingOutlined, TeamOutlined, UserOutlined } from "@ant-design/icons"
 
 const Header = () => {
     return (
@@ -54,6 +54,14 @@ const Header = () => {
                 >
                     <PictureOutlined />
                     Banners
+                </NavLink>
+                <NavLink
+                    className={"flex gap-2 hover:bg-creme/10 [&.active]:bg-bege"}
+                    to={"/admin/redes"}
+                    end
+                >
+                    <TeamOutlined />
+                    Redes
                 </NavLink>
                 <NavLink
                     className={"flex gap-2 hover:bg-creme/10 [&.active]:bg-bege"}
