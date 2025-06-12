@@ -14,20 +14,6 @@ const Banners = () => {
   // COLUNAS DA TABELA
   const colunas = [
     {
-      title: "Nome",
-      dataIndex: "nome",
-      key: "banners_nome",
-      width: "41%",
-      ellipsis: true,
-    },
-    {
-      title: "Link",
-      dataIndex: "link",
-      key: "banners_link",
-      width: "40%",
-      ellipsis: true,
-    },
-    {
       title: "Imagem",
       dataIndex: "imagem",
       key: "banners_imagem",
@@ -42,6 +28,13 @@ const Banners = () => {
           style={{ objectFit: "cover", borderRadius: 8 }}
         />
       )
+    },
+    {
+      title: "Nome",
+      dataIndex: "nome",
+      key: "banners_nome",
+      width: "81%",
+      ellipsis: true,
     },
     {
       title: "Opções",
@@ -93,7 +86,6 @@ const Banners = () => {
       {
         key: prev.length + 1,
         nome: dados.banner_nome,
-        link: dados.banner_link,
         imagem: imagemUrl,
       },
     ])
@@ -113,7 +105,6 @@ const Banners = () => {
     setVisibleCreate(true)
     form.setFieldsValue({
       banner_nome: record.nome,
-      banner_link: record.link,
       banner_imagem: record.imagem
         ? [
             {
@@ -149,7 +140,6 @@ const Banners = () => {
           ? {
               ...item,
               nome: dados.banner_nome,
-              link: dados.banner_link,
               imagem: imagemUrl,
             }
           : item
@@ -178,6 +168,7 @@ const Banners = () => {
   // BUSCAR BANNERS
   useEffect(() => {
     fetch("http://localhost:3001/banners")
+    // fetch("https://projeto-tiamate-back.onrender.com/banners")
       .then(res => res.json())
       .then(data => setBanners(data))
   }, [])
@@ -216,16 +207,6 @@ const Banners = () => {
             rules={[{ required: true, message: "Campo obrigatório!" }]}
           >
             <Input placeholder="Nome do Banner" />
-          </Form.Item>
-          <Form.Item
-            label="Link"
-            name={"banner_link"}
-            rules={[
-              { required: true, message: "Campo obrigatório!" },
-              { type: "url", message: "Digite um link válido!" }
-            ]}
-          >
-            <Input placeholder="https://example.com" type="url" />
           </Form.Item>
           <Form.Item
             label="Imagem"

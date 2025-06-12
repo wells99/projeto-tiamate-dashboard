@@ -3,26 +3,26 @@ import { AntContext } from "../contexts/AntContext"
 import { Button, Drawer, Form, Input, Popconfirm, Table } from "antd"
 import { DeleteFilled, EditFilled, PlusCircleOutlined } from "@ant-design/icons"
 
-const Usuarios = () => {
+const Redes = () => {
   const [visibleCreate, setVisibleCreate] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
-  const [editingUsuario, setEditingUsuario] = useState(null)
+  const [editingRede, setEditingRede] = useState(null)
   const { api } = useContext(AntContext)
   const [form] = Form.useForm()
-  const [dadosUsuarios, setDadosUsuarios] = useState([])
+  const [dadosRedes, setDadosRedes] = useState([])
 
   // COLUNAS DA TABELA
   const colunas = [
     {
       title: "Nome",
       dataIndex: "nome",
-      key: "usuario_nome",
+      key: "rede_nome",
       width: "31%",
     },
     {
-      title: "Email",
-      dataIndex: "email",
-      key: "usuario_email",
+      title: "Link",
+      dataIndex: "link",
+      key: "rede_link",
       width: "60%",
     },
     {
@@ -54,52 +54,49 @@ const Usuarios = () => {
   function openDrawerCreate() {
     setVisibleCreate(true)
     setIsEditing(false)
-    setEditingUsuario(null)
+    setEditingRede(null)
     form.resetFields()
   }
 
   // CRIAR
   function handleCreate(dados) {
-    setDadosUsuarios((prev) => [
+    setDadosRedes((prev) => [
       ...prev,
       {
         key: prev.length + 1,
-        nome: dados.usuario_nome,
-        email: dados.usuario_email,
-        senha: dados.usuario_senha,
+        nome: dados.rede_nome,
+        link: dados.rede_link,
       },
     ])
     form.resetFields()
     setVisibleCreate(false)
 
     api.success({
-      message: "Usuario criado com sucesso!",
-      description: "Um usuario foi adicionado a lista.",
+      message: "Rede criada com sucesso!",
+      description: "Uma rede foi adicionada a lista.",
     })
   }
 
   // ABRIR EDITAR
   function openDrawerEdit(record) {
     setIsEditing(true)
-    setEditingUsuario(record)
+    setEditingRede(record)
     setVisibleCreate(true)
     form.setFieldsValue({
-      usuario_nome: record.nome,
-      usuario_email: record.email,
-      usuario_senha: record.senha,
+      rede_nome: record.nome,
+      rede_link: record.link,
     })
   }
 
   // EDITAR
   function handleEdit(dados) {
-    setDadosUsuarios((prev) =>
+    setDadosRedes((prev) =>
       prev.map((item) =>
-        item.key === editingUsuario.key
+        item.key === editingRede.key
           ? {
               ...item,
-              nome: dados.usuario_nome,
-              email: dados.usuario_email,
-              senha: dados.usuario_senha,
+              nome: dados.rede_nome,
+              link: dados.rede_link,
             }
           : item
       )
@@ -107,51 +104,51 @@ const Usuarios = () => {
     form.resetFields()
     setVisibleCreate(false)
     setIsEditing(false)
-    setEditingUsuario(null)
+    setEditingRede(null)
     api.success({
-      message: "Usuario editado com sucesso!",
-      description: "Um usuario foi atualizado na lista.",
+      message: "Rede editada com sucesso!",
+      description: "Uma rede foi atualizada na lista.",
     })
   }
 
   // DELETAR
   function handleDelete(key) {
-    setDadosUsuarios((prev) => prev.filter((item) => item.key !== key))
+    setDadosRedes((prev) => prev.filter((item) => item.key !== key))
 
     api.success({
-      message: "Usuario excluído com sucesso!",
-      description: "Um usuario foi removido da lista.",
+      message: "Rede excluída com sucesso!",
+      description: "Uma rede foi removida da lista.",
     })
   }
 
-  // BUSCAR USUARIOS
+  // BUSCAR REDES
   useEffect(() => {
-    fetch("http://localhost:3001/usuarios")
-    // fetch("https://projeto-tiamate-back.onrender.com/usuarios")
+    fetch("http://localhost:3001/redes")
+    // fetch("https://projeto-tiamate-back.onrender.com/redes")
       .then(res => res.json())
-      .then(data => setDadosUsuarios(data))
+      .then(data => setDadosRedes(data))
   }, [])
   return ( 
     <>
       <div>
         <div className="flex justify-between items-center mb-8">
-          <h1 className="text-lg text-bege font-bold">Usuários</h1>
+          <h1 className="text-lg text-bege font-bold">Redes</h1>
           <Button
             type="primary"
             icon={<PlusCircleOutlined />}
             onClick={() => openDrawerCreate()}
           >
-            Novo Usuário
+            Nova Rede
           </Button>
         </div>
         <Table
-          dataSource={dadosUsuarios}
+          dataSource={dadosRedes}
           columns={colunas}
         />
       </div>
 
       <Drawer
-        title={isEditing ? "Editar Usuário" : "Criar Usuário"}
+        title={isEditing ? "Editar Rede" : "Criar Rede"}
         onClose={() => setVisibleCreate(false)}
         open={visibleCreate}
       >
@@ -162,24 +159,20 @@ const Usuarios = () => {
         >
           <Form.Item
             label="Nome"
-            name={"usuario_nome"}
+            name={"rede_nome"}
             rules={[{ required: true, message: "Campo obrigatório!" }]}
           >
-            <Input placeholder="Nome do usuário" />
+            <Input placeholder="Nome da rede" />
           </Form.Item>
           <Form.Item
-            label="Email"
-            name={"usuario_email"}
-            rules={[{ required: true, message: "Campo obrigatório!" }]}
+            label="Link"
+            name={"rede_link"}
+            rules={[
+              { required: true, message: "Campo obrigatório!" },
+              { type: "url", message: "Digite um link válido!" }
+            ]}
           >
-            <Input placeholder="Email do usuário" />
-          </Form.Item>
-          <Form.Item
-            label="Senha"
-            name={"usuario_senha"}
-            rules={[{ required: true, message: "Campo obrigatório!" }]}
-          >
-            <Input.Password placeholder="Senha do usuário" />
+            <Input placeholder="Link da rede" type="url" />
           </Form.Item>
           <Button
             type="primary"
@@ -194,4 +187,4 @@ const Usuarios = () => {
    );
 }
  
-export default Usuarios;
+export default Redes;

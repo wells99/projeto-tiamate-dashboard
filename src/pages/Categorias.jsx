@@ -114,6 +114,7 @@ const Categorias = () => {
   // BUSCAR CATEGORIAS
   useEffect(() => {
     fetch("http://localhost:3001/categorias")
+    // fetch("https://projeto-tiamate-back.onrender.com/categorias")
       .then(res => res.json())
       .then(data => setCategorias(data))
   }, [])
