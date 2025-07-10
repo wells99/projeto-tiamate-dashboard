@@ -12,13 +12,14 @@ import Banners from "../pages/Banners"
 import Redes from "../pages/Redes"
 import Leads from "../pages/Leads"
 import Pictures from "../pages/Pictures"
+import SafePaths from "./SafePaths"
 
 const Paths = () => {
     return (
         <BrowserRouter>
             <Routes>
                 <Route path="/" element={<Login />} />
-                <Route path="/admin" element={<DashboardLayout />}>
+                <Route path="/admin" element={<SafePaths><DashboardLayout /></SafePaths>}>
                     <Route index element={<Dashboard />} />
                     <Route path="/admin/usuarios" element={<Usuarios />} />
                     <Route path="/admin/categorias" element={<Categorias />} />

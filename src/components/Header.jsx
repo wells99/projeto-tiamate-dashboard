@@ -4,7 +4,7 @@ import { AppstoreOutlined, CommentOutlined, FileImageOutlined, MailOutlined, Pic
 
 const Header = () => {
     return (
-        <header className="w-[270px] bg-cafe p-4">
+        <header className="w-[270px] h-screen overflow-auto bg-cafe p-4">
             <img src={logo} alt="Tiamate" className="m-auto" />
             <nav className="grid gap-3 mt-8 *:leading-[40px] *:text-creme *:duration-150 *:rounded *:pl-4">
                 <NavLink

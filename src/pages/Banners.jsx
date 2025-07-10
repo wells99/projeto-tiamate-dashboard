@@ -1,26 +1,30 @@
 import { useState, useContext, useEffect } from "react"
 import { AntContext } from "../contexts/AntContext"
-import { Button, Drawer, Form, Input, Popconfirm, Table, Image, Upload } from "antd"
-import { DeleteFilled, EditFilled, PlusCircleOutlined, UploadOutlined } from "@ant-design/icons"
+import { Button, Drawer, Form, Input, Popconfirm, Table, Image } from "antd"
+import { DeleteFilled, EditFilled, PlusCircleOutlined } from "@ant-design/icons"
+import { useBuscarBanners, useCriarBanner } from './../hooks/bannerHooks';
 
 const Banners = () => {
   const [visibleCreate, setVisibleCreate] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
   const [editingBanners, setEditingBanners] = useState(null)
-  const { api } = useContext(AntContext)
   const [form] = Form.useForm()
-  const [banners, setBanners] = useState([])
+  // const [banners, setBanners] = useState([])
+  const { api } = useContext(AntContext)
+  const { data: banners, isFetched } = useBuscarBanners();
+  const { mutateAsync: criar } = useCriarBanner()
+
 
   // COLUNAS DA TABELA
   const colunas = [
     {
       title: "Imagem",
-      dataIndex: "imagem",
-      key: "banners_imagem",
+      dataIndex: "banner_imagem",
+      key: "banner_imagem",
       width: "10%",
       align: "center",
       render: (imagem) => (
-        <Image 
+        <Image
           src={imagem}
           alt="Banner"
           width={60}
@@ -31,8 +35,8 @@ const Banners = () => {
     },
     {
       title: "Nome",
-      dataIndex: "nome",
-      key: "banners_nome",
+      dataIndex: "banner_nome",
+      key: "banner_nome",
       width: "81%",
       ellipsis: true,
     },
@@ -71,30 +75,39 @@ const Banners = () => {
 
   // CRIAR
   function handleCreate(dados) {
-    let imagemUrl = ""
-    if (
-      dados.banner_imagem &&
-      Array.isArray(dados.banner_imagem) &&
-      dados.banner_imagem.length > 0
-    ) {
-      const file = dados.banner_imagem[0].originFileObj
-      imagemUrl = URL.createObjectURL(file)
-    }
+    // let imagemUrl = ""
+    // if (
+    //   dados.banner_imagem &&
+    //   Array.isArray(dados.banner_imagem) &&
+    //   dados.banner_imagem.length > 0
+    // ) {
+    //   const file = dados.banner_imagem[0].originFileObj
+    //   imagemUrl = URL.createObjectURL(file)
+    // }
 
-    setBanners((prev) => [
-      ...prev,
-      {
-        key: prev.length + 1,
-        nome: dados.banner_nome,
-        imagem: imagemUrl,
-      },
-    ])
-    form.resetFields()
-    setVisibleCreate(false)
+    // setBanners((prev) => [
+    //   ...prev,
+    //   {
+    //     key: prev.length + 1,
+    //     nome: dados.banner_nome,
+    //     imagem: imagemUrl,
+    //   },
+    // ])
+    // form.resetFields()
+    // setVisibleCreate(false)
 
-    api.success({
-      message: "Banner criado com sucesso!",
-      description: "Um banner foi adicionado a lista.",
+    // api.success({
+    //   message: "Banner criado com sucesso!",
+    //   description: "Um banner foi adicionado a lista.",
+    // })
+    criar(dados, {
+      onSuccess: (resposta) => {
+        form.resetFields()
+        setVisibleCreate(false)
+        api[resposta.type]({
+          description: resposta.description,
+        })
+      }
     })
   }
 
@@ -107,13 +120,13 @@ const Banners = () => {
       banner_nome: record.nome,
       banner_imagem: record.imagem
         ? [
-            {
-              uid: "-1",
-              name: "image.png",
-              status: "done",
-              url: record.imagem,
-            },
-          ] 
+          {
+            uid: "-1",
+            name: "image.png",
+            status: "done",
+            url: record.imagem,
+          },
+        ]
         : [],
     })
   }
@@ -134,17 +147,17 @@ const Banners = () => {
       }
     }
 
-    setBanners((prev) =>
-      prev.map((item) =>
-        item.key === editingBanners.key
-          ? {
-              ...item,
-              nome: dados.banner_nome,
-              imagem: imagemUrl,
-            }
-          : item
-      )
-    )
+    // setBanners((prev) =>
+    //   prev.map((item) =>
+    //     item.key === editingBanners.key
+    //       ? {
+    //         ...item,
+    //         nome: dados.banner_nome,
+    //         imagem: imagemUrl,
+    //       }
+    //       : item
+    //   )
+    // )
     form.resetFields()
     setVisibleCreate(false)
     setIsEditing(false)
@@ -157,7 +170,7 @@ const Banners = () => {
 
   // DELETAR
   function handleDelete(key) {
-    setBanners((prev) => prev.filter((item) => item.key !== key))
+    // setBanners((prev) => prev.filter((item) => item.key !== key))
 
     api.success({
       message: "Banner excluído com sucesso!",
@@ -166,13 +179,7 @@ const Banners = () => {
   }
 
   // BUSCAR BANNERS
-  useEffect(() => {
-    fetch("http://localhost:3001/banners")
-    // fetch("https://projeto-tiamate-back.onrender.com/banners")
-      .then(res => res.json())
-      .then(data => setBanners(data))
-  }, [])
-  return ( 
+  return (
     <>
       <div>
         <div className="flex justify-between items-center mb-8">
@@ -186,6 +193,7 @@ const Banners = () => {
           </Button>
         </div>
         <Table
+          rowKey={"banner_id"}
           dataSource={banners}
           columns={colunas}
         />
@@ -200,6 +208,7 @@ const Banners = () => {
           form={form}
           layout="vertical"
           onFinish={isEditing ? handleEdit : handleCreate}
+          encType="multipart/form-data"
         >
           <Form.Item
             label="Nome"
@@ -210,18 +219,24 @@ const Banners = () => {
           </Form.Item>
           <Form.Item
             label="Imagem"
-            name={"noticia_imagem"}
-            valuePropName="fileList"
-            getValueFromEvent={e => Array.isArray(e) ? e : e && e.fileList}
+            name={"banner_imagem"}
+            valuePropName="file"
+            getValueFromEvent={(e) => {
+              if (Array.isArray(e)) {
+                return e;
+              }
+              return e?.target?.files?.[0];
+            }}
             rules={[{ required: true, message: "Campo obrigatório!" }]}
           >
-            <Upload
-              listType="picture"
-              maxCount={1}
-              beforeUpload={() => false}
-            >
-              <Button icon={<UploadOutlined />}>Upload</Button>
-            </Upload>
+            <Input type="file" />
+          </Form.Item>
+          <Form.Item
+            label="Link"
+            name={"banner_link"}
+            rules={[{ required: true, message: "Campo obrigatório!" }]}
+          >
+            <Input placeholder="Link do Banner" />
           </Form.Item>
           <Button
             type="primary"
@@ -233,7 +248,7 @@ const Banners = () => {
         </Form>
       </Drawer>
     </>
-   );
+  );
 }
- 
+
 export default Banners;

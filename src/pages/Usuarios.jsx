@@ -2,6 +2,7 @@ import { useContext, useEffect, useState } from "react"
 import { AntContext } from "../contexts/AntContext"
 import { Button, Drawer, Form, Input, Popconfirm, Table } from "antd"
 import { DeleteFilled, EditFilled, PlusCircleOutlined } from "@ant-design/icons"
+import { AXIOS } from "../services"
 
 const Usuarios = () => {
   const [visibleCreate, setVisibleCreate] = useState(false)
@@ -15,13 +16,13 @@ const Usuarios = () => {
   const colunas = [
     {
       title: "Nome",
-      dataIndex: "nome",
+      dataIndex: "usuario_nome",
       key: "usuario_nome",
       width: "31%",
     },
     {
       title: "Email",
-      dataIndex: "email",
+      dataIndex: "usuario_email",
       key: "usuario_email",
       width: "60%",
     },
@@ -96,11 +97,11 @@ const Usuarios = () => {
       prev.map((item) =>
         item.key === editingUsuario.key
           ? {
-              ...item,
-              nome: dados.usuario_nome,
-              email: dados.usuario_email,
-              senha: dados.usuario_senha,
-            }
+            ...item,
+            nome: dados.usuario_nome,
+            email: dados.usuario_email,
+            senha: dados.usuario_senha,
+          }
           : item
       )
     )
@@ -124,14 +125,25 @@ const Usuarios = () => {
     })
   }
 
+  async function buscarUsuarios() {
+    const token = sessionStorage.getItem("token");
+    if(token){
+      const res = await AXIOS.get("/usuarios", {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      if (res.status == 200) {
+        setDadosUsuarios(res.data)
+      }
+    }
+  }
+
   // BUSCAR USUARIOS
   useEffect(() => {
-    fetch("http://localhost:3001/usuarios")
-    // fetch("https://projeto-tiamate-back.onrender.com/usuarios")
-      .then(res => res.json())
-      .then(data => setDadosUsuarios(data))
+    buscarUsuarios()
   }, [])
-  return ( 
+  return (
     <>
       <div>
         <div className="flex justify-between items-center mb-8">
@@ -191,7 +203,7 @@ const Usuarios = () => {
         </Form>
       </Drawer>
     </>
-   );
+  );
 }
- 
+
 export default Usuarios;

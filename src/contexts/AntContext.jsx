@@ -7,7 +7,7 @@ export const AntContext = createContext()
 
 const AntProvider = ({ children }) => {
     const [api, contextHolder] = notification.useNotification({
-        placement: "topRight"
+        placement: "topRight",
     });
     return (
         <ConfigProvider

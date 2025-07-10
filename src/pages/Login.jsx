@@ -3,6 +3,7 @@ import { useNavigate } from "react-router"
 import { Button, Form, Input } from "antd"
 import { AntContext } from "../contexts/AntContext"
 import bgLogin from "../assets/bg-login.png"
+import { AXIOS } from "../services"
 
 const Login = () => {
     const [loading, setLoading] = useState(false)
@@ -12,24 +13,17 @@ const Login = () => {
     const onFinish = async (values) => {
         setLoading(true)
         try {
-            const res = await fetch("https://projeto-tiamate-back.onrender.com/login", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    usuario_email: values.usuario_email,
-                    usuario_senha: values.usuario_senha
-                })
-            });
-            const data = await res.json();
-            if (res.ok && data.token) {
-                localStorage.setItem("token", data.token)
+            const res = await AXIOS.post("/login", values);
+            if (res.status == 200 && res.data.token) {
+                sessionStorage.setItem("token", res.data.token)
+                sessionStorage.setItem("usuario", JSON.stringify(res.data.usuario))
                 api.success({
                     message: "Login efetuado com sucesso!"
                 })
-                navigate("/admin")
+                navigate("/admin");
             } else {
                 api.error({
-                    message: data.description || data.message || "Email ou senha inválidos!"
+                    message: res.data.description || res.data.message || "Email ou senha inválidos!"
                 })
             }
         } catch (e) {

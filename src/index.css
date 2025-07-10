@@ -12,3 +12,12 @@
     --color-cinza: #E7E1DF;
     --color-cinza-escuro: #C4C4C4;
 }
+
+::-webkit-scrollbar{
+    width: 6px;
+    background-color: #292625;
+}
+
+::-webkit-scrollbar-thumb{
+    background-color: #CF9A5A;
+}
