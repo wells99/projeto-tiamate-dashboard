@@ -11,37 +11,34 @@ const Login = () => {
 
     const onFinish = async (values) => {
         setLoading(true)
-
         try {
-            // const res = await fetch("https://projeto-tiamate-back.onrender.com/usuarios")
-            const res = await fetch("http://localhost:3001/usuarios")
-            const users = await res.json()
-            const user = users.find(
-                user => user.email === values.usuario_email && user.senha === values.usuario_senha
-            )
-            if (user) {
-                setTimeout(() => {
-                    api.success({
-                        message: "Logado",
-                        description: "Login efetuado com sucesso!",
-                    })
-                    navigate("/admin")
-                    setLoading(false)
-                }, 2000)
+            const res = await fetch("https://projeto-tiamate-back.onrender.com/login", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    usuario_email: values.usuario_email,
+                    usuario_senha: values.usuario_senha
+                })
+            });
+            const data = await res.json();
+            if (res.ok && data.token) {
+                localStorage.setItem("token", data.token)
+                api.success({
+                    message: "Login efetuado com sucesso!"
+                })
+                navigate("/admin")
             } else {
                 api.error({
-                    message: "Error",
-                    description: "Email ou senha inválidos!",
+                    message: data.description || data.message || "Email ou senha inválidos!"
                 })
-                setLoading(false)
             }
         } catch (e) {
             api.error({
-                message: "Error",
-                description: "Erro ao conectar com o servidor!",
+                message: "Erro ao conectar com o servidor!"
             })
-            setLoading(false)
+            console.error(e)
         }
+        setLoading(false)
     }
     return (
         <div className="flex justify-center items-center h-screen overflow-hidden">
