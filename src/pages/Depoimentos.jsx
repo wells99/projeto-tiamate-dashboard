@@ -1,53 +1,55 @@
-import { useState, useContext, useEffect } from "react"
-import { AntContext } from "../contexts/AntContext"
-import { Button, Drawer, Form, Input, Popconfirm, Rate, Table, Image, Upload } from "antd"
-import { DeleteFilled, EditFilled, PlusCircleOutlined, UploadOutlined } from "@ant-design/icons"
-import TextArea from "antd/es/input/TextArea"
+import { useState, useContext } from "react";
+import { AntContext } from "../contexts/AntContext";
+import { Button, Drawer, Form, Input, Popconfirm, Rate, Table, Image } from "antd";
+import { DeleteFilled, EditFilled, PlusCircleOutlined } from "@ant-design/icons";
+import TextArea from "antd/es/input/TextArea";
+import { useBuscarDepoimentos, useCriarDepoimento, useEditarDepoimento, useDeletarDepoimento } from "../hooks/depoimentosHooks";
 
 const Depoimentos = () => {
-  const [visibleCreate, setVisibleCreate] = useState(false)
-  const [isEditing, setIsEditing] = useState(false)
-  const [editingDepoimento, setEditingDepoimento] = useState(null)
-  const { api } = useContext(AntContext)
-  const [form] = Form.useForm()
-  const [depoimentos, setDepoimentos] = useState([])
+  const [visibleCreate, setVisibleCreate] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const { api } = useContext(AntContext);
+  const [form] = Form.useForm();
+  const { data: depoimentos, isLoading } = useBuscarDepoimentos();
+  const { mutateAsync: criar } = useCriarDepoimento();
+  const { mutateAsync: editar } = useEditarDepoimento();
+  const { mutateAsync: deletar } = useDeletarDepoimento();
 
-  // COLUNAS DA TABELA
   const colunas = [
     {
       title: "Imagem",
-      dataIndex: "imagem",
+      dataIndex: "depoimento_imagem",
       key: "depoimento_imagem",
       width: "10%",
       align: "center",
       render: (imagem) => (
-        <Image 
+        <Image
           src={imagem}
           alt="Depoimento"
           width={60}
           height={60}
           style={{ objectFit: "cover", borderRadius: 8 }}
         />
-      )
+      ),
     },
     {
       title: "Nota",
-      dataIndex: "nota",
+      dataIndex: "depoimento_nota",
       key: "depoimento_nota",
       width: "8%",
       align: "center",
     },
     {
       title: "Nome",
-      dataIndex: "nome",
+      dataIndex: "depoimento_nome",
       key: "depoimento_nome",
       width: "20%",
       ellipsis: true,
     },
     {
       title: "Depoimento",
-      dataIndex: "mensagem",
-      key: "depoimento_mensagem",
+      dataIndex: "depoimento_descricao",
+      key: "depoimento_descricao",
       width: "53%",
       ellipsis: true,
     },
@@ -58,141 +60,93 @@ const Depoimentos = () => {
       align: "center",
       render: (_, record) => (
         <div className="flex justify-between">
-          <div className="w-[30px] h-[30px] flex justify-center items-center cursor-pointer duration-150 border border-transparent rounded-full hover:border-marrom group" onClick={() => openDrawerEdit(record)}>
-            <EditFilled className=" duration-150 !text-bege group-hover:!text-marrom" />
+          <div
+            className="w-[30px] h-[30px] flex justify-center items-center cursor-pointer duration-150 border border-transparent rounded-full hover:border-marrom group"
+            onClick={() => openDrawerEdit(record)}
+          >
+            <EditFilled className="duration-150 !text-bege group-hover:!text-marrom" />
           </div>
           <Popconfirm
             title="Deseja excluir?"
             okText="Sim"
             cancelText="Não"
-            onConfirm={() => handleDelete(record.key)}
+            onConfirm={() => handleDelete(record.depoimento_id)}
           >
             <div className="w-[30px] h-[30px] flex justify-center items-center cursor-pointer duration-150 border border-transparent rounded-full hover:border-marrom group">
-              <DeleteFilled className=" duration-150 !text-bege group-hover:!text-marrom" />
+              <DeleteFilled className="duration-150 !text-bege group-hover:!text-marrom" />
             </div>
           </Popconfirm>
         </div>
       ),
     },
-  ]
+  ];
 
-  // ABRIR CRIAR
   function openDrawerCreate() {
-    setVisibleCreate(true)
-    setIsEditing(false)
-    setEditingDepoimento(null)
-    form.resetFields()
+    setVisibleCreate(true);
+    setIsEditing(false);
+    form.resetFields();
   }
 
-  // CRIAR
-  function handleCreate(dados) {
-    let imagemUrl = ""
-    if (
-      dados.depoimento_imagem &&
-      Array.isArray(dados.depoimento_imagem) &&
-      dados.depoimento_imagem.length > 0
-    ) {
-      const file = dados.depoimento_imagem[0].originFileObj
-      imagemUrl = URL.createObjectURL(file)
-    }
+  async function handleCreate(dados) {
 
-    setDepoimentos((prev) => [
-      ...prev,
-      {
-        key: prev.length + 1,
-        nota: String(dados.depoimento_nota),
-        nome: dados.depoimento_nome,
-        mensagem: dados.depoimento_mensagem,
-        imagem: imagemUrl,
+    await criar(dados, {
+      onSuccess: (res) => {
+        form.resetFields();
+        setVisibleCreate(false);
+        api.success({
+          message: "Depoimento criado com sucesso!",
+          description: res?.description || "Depoimento adicionado à lista.",
+        });
       },
-    ])
-    form.resetFields()
-    setVisibleCreate(false)
-
-    api.success({
-      message: "Depoimento criado com sucesso!",
-      description: "Um depoimento foi adicionado a lista.",
-    })
+    });
   }
 
-  // ABRIR EDITAR
   function openDrawerEdit(record) {
-    setIsEditing(true)
-    setEditingDepoimento(record)
-    setVisibleCreate(true)
+    setIsEditing(true);
+    setVisibleCreate(true);
     form.setFieldsValue({
-      depoimento_nota: Number(record.nota),
-      depoimento_nome: record.nome,
-      depoimento_mensagem: record.mensagem,
-      depoimento_imagem: record.imagem 
+      depoimento_nota: Number(record.depoimento_nota),
+      depoimento_nome: record.depoimento_nome,
+      depoimento_descricao: record.depoimento_descricao,
+      depoimento_imagem: record.depoimento_imagem
         ? [
-            {
-              uid: "-1",
-              name: "image.png",
-              status: "done",
-              url: record.imagem,
-            },
-          ] 
+          {
+            uid: "-1",
+            name: "imagem.png",
+            status: "done",
+            url: record.depoimento_imagem,
+          },
+        ]
         : [],
-    })
+    });
   }
 
-  // EDITAR
-  function handleEdit(dados) {
-    let imagemUrl = editingDepoimento.imagem;
-    if (
-      dados.depoimento_imagem &&
-      Array.isArray(dados.depoimento_imagem) &&
-      dados.depoimento_imagem.length > 0
-    ) {
-      const fileObj = dados.depoimento_imagem[0];
-      if (fileObj.originFileObj) {
-        imagemUrl = URL.createObjectURL(fileObj.originFileObj);
-      } else if (fileObj.url) {
-        imagemUrl = fileObj.url;
-      }
-    }
+  async function handleEdit(dados) {
     
-    setDepoimentos((prev) =>
-      prev.map((item) => 
-        item.key === editingDepoimento.key
-          ? {
-              ...item,
-              nota: String(dados.depoimento_nota),
-              nome: dados.depoimento_nome,
-              mensagem: dados.depoimento_mensagem,
-              imagem: imagemUrl,
-            }
-          : item
-      )
-    )
-    form.resetFields()
-    setVisibleCreate(false)
-    setIsEditing(false)
-    setEditingDepoimento(null)
-    api.success({
-      message: "Depoimento editado com sucesso!",
-      description: "Um depoimento foi atualizado na lista.",
-    })
+    await editar(dados, {
+      onSuccess: (res) => {
+        form.resetFields();
+        setVisibleCreate(false);
+        setIsEditing(false);
+        api.success({
+          message: "Depoimento editado com sucesso!",
+          description: res?.description || "Depoimento atualizado.",
+        });
+      },
+    });
   }
 
-  // DELETAR
-  function handleDelete(key) {
-    setDepoimentos((prev) => prev.filter((item) => item.key !== key))
-
-    api.success({
-      message: "Depoimento excluído com sucesso!",
-      description: "Um depoimento foi removido da lista.",
-    })
+  function handleDelete(id) {
+    deletar(id, {
+      onSuccess: () => {
+        api.success({
+          message: "Depoimento excluído com sucesso!",
+          description: "Um depoimento foi removido da lista.",
+        });
+      },
+    });
   }
 
-  // BUSCAR DEPOIMENTOS
-  useEffect(() => {
-    fetch("http://localhost:3001/depoimentos")
-    // fetch("https://projeto-tiamate-back.onrender.com/depoimentos")
-      .then(res => res.json())
-      .then(data => setDepoimentos(data))
-  }, [])
   return (
     <>
       <div>
@@ -201,12 +155,14 @@ const Depoimentos = () => {
           <Button
             type="primary"
             icon={<PlusCircleOutlined />}
-            onClick={() => openDrawerCreate()}
+            onClick={openDrawerCreate}
           >
             Novo Depoimento
           </Button>
         </div>
         <Table
+          rowKey="depoimento_id"
+          loading={isLoading}
           dataSource={depoimentos}
           columns={colunas}
         />
@@ -222,57 +178,50 @@ const Depoimentos = () => {
           layout="vertical"
           onFinish={isEditing ? handleEdit : handleCreate}
           initialValues={{ depoimento_nota: 5 }}
+          encType="multipart/form-data"
         >
           <Form.Item
             label="Nota"
-            name={"depoimento_nota"}
+            name="depoimento_nota"
             rules={[{ required: true, message: "Campo obrigatório!" }]}
           >
             <Rate allowHalf />
           </Form.Item>
           <Form.Item
             label="Nome"
-            name={"depoimento_nome"}
+            name="depoimento_nome"
             rules={[{ required: true, message: "Campo obrigatório!" }]}
           >
             <Input placeholder="Nome do usuário" />
           </Form.Item>
           <Form.Item
             label="Depoimento"
-            name={"depoimento_mensagem"}
+            name="depoimento_descricao"
             rules={[{ required: true, message: "Campo obrigatório!" }]}
           >
-            <TextArea
-              rows={4}
-              placeholder="Mensagem"
-            />
+            <TextArea rows={4} placeholder="Mensagem" />
           </Form.Item>
           <Form.Item
             label="Imagem"
-            name={"depoimento_imagem"}
-            valuePropName="fileList"
-            getValueFromEvent={e => Array.isArray(e) ? e : e && e.fileList}
+            name="depoimento_imagem"
+            valuePropName="file"
+            getValueFromEvent={(e) => {
+              if (Array.isArray(e)) {
+                return e;
+              }
+              return e?.target?.files?.[0];
+            }}
             rules={[{ required: true, message: "Campo obrigatório!" }]}
           >
-            <Upload
-              listType="picture"
-              maxCount={1}
-              beforeUpload={() => false}
-            >
-              <Button icon={<UploadOutlined />}>Upload</Button>
-            </Upload>
+            <Input type="file" />
           </Form.Item>
-          <Button
-            type="primary"
-            className="w-full"
-            htmlType="submit"
-          >
+          <Button type="primary" className="w-full" htmlType="submit">
             {isEditing ? "Editar" : "Criar"}
           </Button>
         </Form>
       </Drawer>
     </>
   );
-}
+};
 
 export default Depoimentos;

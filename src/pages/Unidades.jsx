@@ -2,42 +2,45 @@ import { useContext, useEffect, useState } from "react"
 import { AntContext } from "../contexts/AntContext"
 import { Button, Drawer, Form, Input, Popconfirm, Table } from "antd"
 import { DeleteFilled, EditFilled, PlusCircleOutlined } from "@ant-design/icons"
+import { useBuscarUnidades, useCriarUnidade, useDeletarUnidade, useEditarUnidade } from "../hooks/unidadesHooks"
 
 const Unidades = () => {
   const [visibleCreate, setVisibleCreate] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
-  const [editingUnidade, setEditingUnidade] = useState(null)
   const { api } = useContext(AntContext)
   const [form] = Form.useForm()
-  const [dadosUnidades, setDadosUnidades] = useState([])
   const [cep, setCep] = useState("")
+  const { data: unidades, isLoading } = useBuscarUnidades();
+  const { mutateAsync: criar } = useCriarUnidade();
+  const { mutateAsync: editar } = useEditarUnidade();
+  const { mutateAsync: deletar } = useDeletarUnidade();
 
   // COLUNAS DA TABELA
   const colunas = [
     {
       title: "Endereço",
-      dataIndex: "endereco",
+      dataIndex: "unidade_endereco",
       key: "unidade_endereco",
       width: "21%",
       ellipsis: true,
     },
     {
       title: "Cidade",
-      dataIndex: "cidade",
+      dataIndex: "unidade_cidade",
       key: "unidade_cidade",
       width: "10%",
       ellipsis: true,
     },
     {
       title: "Estado",
-      dataIndex: "estado",
+      dataIndex: "unidade_estado",
       key: "unidade_estado",
       width: "10%",
       ellipsis: true,
     },
     {
       title: "CEP",
-      dataIndex: "cep",
+      dataIndex: "unidade_cep",
       key: "unidade_cep",
       width: "10%",
       ellipsis: true,
@@ -47,21 +50,21 @@ const Unidades = () => {
     },
     {
       title: "Hr Semana",
-      dataIndex: "horario_semana",
+      dataIndex: "unidade_horario_semana",
       key: "unidade_horario_semana",
       width: "11%",
       ellipsis: true,
     },
     {
       title: "Hr Fds",
-      dataIndex: "horario_fds",
+      dataIndex: "unidade_horario_fds",
       key: "unidade_horario_fds",
       width: "11%",
       ellipsis: true,
     },
     {
       title: "Maps",
-      dataIndex: "maps",
+      dataIndex: "unidade_maps",
       key: "unidade_maps",
       width: "18%",
       ellipsis: true,
@@ -80,7 +83,7 @@ const Unidades = () => {
             title="Deseja excluir?"
             okText="Sim"
             cancelText="Não"
-            onConfirm={() => handleDelete(record.key)}
+            onConfirm={() => handleDelete(record.unidade_id)}
           >
             <div className="w-[30px] h-[30px] flex justify-center items-center cursor-pointer duration-150 border border-transparent rounded-full hover:border-marrom group">
               <DeleteFilled className=" duration-150 !text-bege group-hover:!text-marrom" />
@@ -95,91 +98,69 @@ const Unidades = () => {
   function openDrawerCreate() {
     setVisibleCreate(true)
     setIsEditing(false)
-    setEditingUnidade(null)
     form.resetFields()
   }
 
   // CRIAR
-  function handleCreate(dados) {
-    setDadosUnidades((prev) => [
-      ...prev,
-      {
-        key: prev.length + 1,
-        endereco: dados.unidade_endereco,
-        cidade: dados.unidade_cidade,
-        estado: dados.unidade_estado,
-        cep: dados.unidade_cep,
-        horario_semana: dados.unidade_horario_semana,
-        horario_fds: dados.unidade_horario_fds,
-        maps: dados.unidade_maps,
+  async function handleCreate(dados) {
+
+    await criar(dados, {
+      onSuccess: (res) => {
+        form.resetFields();
+        setVisibleCreate(false);
+        api.success({
+          message: "Depoimento criado com sucesso!",
+          description: res?.description || "Depoimento adicionado à lista.",
+        });
       },
-    ])
-    form.resetFields()
-    setVisibleCreate(false)
-
-    api.success({
-      message: "Unidade criada com sucesso!",
-      description: "Uma unidade foi adicionada a lista.",
-    })
+    });
   }
 
-  // ABRIR EDITAR
   function openDrawerEdit(record) {
-    setIsEditing(true)
-    setEditingUnidade(record)
-    setVisibleCreate(true)
+    setIsEditing(true);
+    setVisibleCreate(true);
     form.setFieldsValue({
-      unidade_endereco: record.endereco,
-      unidade_cidade: record.cidade,
-      unidade_estado: record.estado,
-      unidade_cep: record.cep,
-      unidade_horario_semana: record.horario_semana,
-      unidade_horario_fds: record.horario_fds,
-      unidade_maps: record.maps,
-    })
+      unidade_id: record.unidade_id,
+      unidade_endereco: record.unidade_endereco,
+      unidade_cidade: record.unidade_cidade,
+      unidade_estado: record.unidade_estado,
+      unidade_cep: record.unidade_cep,
+      unidade_horario_semana: record.unidade_horario_semana,
+      unidade_horario_fds: record.unidade_horario_fds,
+      unidade_maps: record.unidade_maps
+
+    });
   }
 
-  // EDITAR
-  function handleEdit(dados) {
-    setDadosUnidades((prev) =>
-      prev.map((item) =>
-        item.key === editingUnidade.key
-          ? {
-              ...item,
-              endereco: dados.unidade_endereco,
-              cidade: dados.unidade_cidade,
-              estado: dados.unidade_estado,
-              cep: dados.unidade_cep,
-              horario_semana: dados.unidade_horario_semana,
-              horario_fds: dados.unidade_horario_fds,
-              maps: dados.unidade_maps,
-            }
-          : item
-      )
-    )
-    form.resetFields()
-    setVisibleCreate(false)
-    setIsEditing(false)
-    setEditingUnidade(null)
-    api.success({
-      message: "Unidade editada com sucesso!",
-      description: "Uma unidade foi atualizada na lista.",
-    })
+  async function handleEdit(dados) {
+
+    await editar(dados, {
+      onSuccess: (res) => {
+        form.resetFields();
+        setVisibleCreate(false);
+        setIsEditing(false);
+        api.success({
+          message: "Depoimento editado com sucesso!",
+          description: res?.description || "Depoimento atualizado.",
+        });
+      },
+    });
   }
 
-  // DELETAR
-  function handleDelete(key) {
-    setDadosUnidades((prev) => prev.filter((item) => item.key !== key))
-
-    api.success({
-      message: "Unidade excluída com sucesso!",
-      description: "Uma unidade foi removida da lista.",
-    })
+  function handleDelete(id) {
+    deletar(id, {
+      onSuccess: () => {
+        api.success({
+          message: "Depoimento excluído com sucesso!",
+          description: "Um depoimento foi removido da lista.",
+        });
+      },
+    });
   }
 
   // BUSCAR CEP
   useEffect(() => {
-    if(cep.length == 8) {
+    if (cep.length == 8) {
       fetch(`https://viacep.com.br/ws/${cep}/json/`)
         .then((res) => res.json())
         .then((data) => {
@@ -198,15 +179,8 @@ const Unidades = () => {
     }
   }, [cep])
 
-  // BUSCAR UNIDADES
-  useEffect(() => {
-    fetch("http://localhost:3001/unidades")
-    // fetch("https://projeto-tiamate-back.onrender.com/unidades")
-      .then(res => res.json())
-      .then(data => setDadosUnidades(data))
-  }, [])
 
-  return ( 
+  return (
     <>
       <div>
         <div className="flex justify-between items-center mb-8">
@@ -220,8 +194,10 @@ const Unidades = () => {
           </Button>
         </div>
         <Table
-          dataSource={dadosUnidades}
+          rowKey="unidade_id"
+          dataSource={unidades}
           columns={colunas}
+          loading={isLoading}
         />
       </div>
 
@@ -236,12 +212,18 @@ const Unidades = () => {
           onFinish={isEditing ? handleEdit : handleCreate}
         >
           <Form.Item
+            hidden
+            name={"unidade_id"}
+          >
+            <Input />
+          </Form.Item>
+          <Form.Item
             label="CEP"
             name={"unidade_cep"}
             rules={[{ required: true, message: "Campo obrigatório!" }]}
           >
-            <Input 
-              placeholder="Digite o CEP" 
+            <Input
+              placeholder="Digite o CEP"
               maxLength={8}
               onChange={(e) => setCep(e.target.value)}
             />
@@ -301,7 +283,7 @@ const Unidades = () => {
         </Form>
       </Drawer>
     </>
-   );
+  );
 }
- 
+
 export default Unidades;
