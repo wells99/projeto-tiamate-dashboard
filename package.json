@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "concurrently \"npm run dev:vite\" \"npm run dev:api\"",
+    "dev": "vite",
     "dev:vite": "vite",
     "dev:api": "json-server --watch src/api/api.json --port 3001",
     "build": "vite build",

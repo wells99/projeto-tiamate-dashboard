@@ -10,11 +10,15 @@ const Dashboard = () => {
 
   // BUSCAR LEADS
   useEffect(() => {
-    // fetch("https://projeto-tiamate-back.onrender.com/leads")
-    fetch("http://localhost:3001/leads")
+    const token = sessionStorage.getItem("token");
+    fetch("https://projeto-tiamate-back.onrender.com/leads", {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    })
       .then(res => res.json())
-      .then(data => setLeads(data))
-  }, [])
+      .then(data => setLeads(data));
+  }, []);
   return (
     <>
       <div>
