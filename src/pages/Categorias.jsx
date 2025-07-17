@@ -14,10 +14,6 @@ const Categorias = () => {
   const { mutateAsync: editar } = useEditarCategoria();
   const { mutateAsync: deletar } = useDeletarCategoria();
 
-  console.log(criar)
-  console.log(editar)
-  console.log(deletar)
-
   // COLUNAS DA TABELA
   const colunas = [
     {

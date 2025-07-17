@@ -1,16 +1,18 @@
-import { useContext, useEffect, useState } from "react"
+import { useContext, useState } from "react"
 import { AntContext } from "../contexts/AntContext"
 import { Button, Drawer, Form, Input, Popconfirm, Table } from "antd"
 import { DeleteFilled, EditFilled, PlusCircleOutlined } from "@ant-design/icons"
-import { AXIOS } from "../services"
+import { useBuscarUsuarios, useCriarUsuario, useDeletarUsuario, useEditarUsuario } from "../hooks/usuarioHooks"
 
 const Usuarios = () => {
   const [visibleCreate, setVisibleCreate] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
-  const [editingUsuario, setEditingUsuario] = useState(null)
-  const { api } = useContext(AntContext)
   const [form] = Form.useForm()
-  const [dadosUsuarios, setDadosUsuarios] = useState([])
+  const { api } = useContext(AntContext)
+  const { data: usuarios, isFetching: carregandoUsuarios } = useBuscarUsuarios();
+  const { mutateAsync: criar } = useCriarUsuario();
+  const { mutateAsync: editar } = useEditarUsuario();
+  const { mutateAsync: deletar } = useDeletarUsuario();
 
   // COLUNAS DA TABELA
   const colunas = [
@@ -40,7 +42,7 @@ const Usuarios = () => {
             title="Deseja excluir?"
             okText="Sim"
             cancelText="Não"
-            onConfirm={() => handleDelete(record.key)}
+            onConfirm={() => handleDelete(record.usuario_id)}
           >
             <div className="w-[30px] h-[30px] flex justify-center items-center cursor-pointer duration-150 border border-transparent rounded-full hover:border-marrom group">
               <DeleteFilled className=" duration-150 !text-bege group-hover:!text-marrom" />
@@ -55,94 +57,58 @@ const Usuarios = () => {
   function openDrawerCreate() {
     setVisibleCreate(true)
     setIsEditing(false)
-    setEditingUsuario(null)
     form.resetFields()
   }
 
   // CRIAR
   function handleCreate(dados) {
-    setDadosUsuarios((prev) => [
-      ...prev,
-      {
-        key: prev.length + 1,
-        nome: dados.usuario_nome,
-        email: dados.usuario_email,
-        senha: dados.usuario_senha,
-      },
-    ])
-    form.resetFields()
-    setVisibleCreate(false)
-
-    api.success({
-      message: "Usuario criado com sucesso!",
-      description: "Um usuario foi adicionado a lista.",
+    criar(dados, {
+      onSuccess: (resposta) => {
+        form.resetFields()
+        setVisibleCreate(false)
+        api[resposta.type]({
+          description: resposta.description,
+        })
+      }
     })
   }
 
   // ABRIR EDITAR
   function openDrawerEdit(record) {
     setIsEditing(true)
-    setEditingUsuario(record)
     setVisibleCreate(true)
     form.setFieldsValue({
-      usuario_nome: record.nome,
-      usuario_email: record.email,
-      usuario_senha: record.senha,
+      usuario_id: record.usuario_id,
+      usuario_nome: record.usuario_nome,
+      usuario_email: record.usuario_email,
     })
   }
 
   // EDITAR
   function handleEdit(dados) {
-    setDadosUsuarios((prev) =>
-      prev.map((item) =>
-        item.key === editingUsuario.key
-          ? {
-            ...item,
-            nome: dados.usuario_nome,
-            email: dados.usuario_email,
-            senha: dados.usuario_senha,
-          }
-          : item
-      )
-    )
-    form.resetFields()
-    setVisibleCreate(false)
-    setIsEditing(false)
-    setEditingUsuario(null)
-    api.success({
-      message: "Usuario editado com sucesso!",
-      description: "Um usuario foi atualizado na lista.",
+    editar(dados, {
+      onSuccess: (resposta) => {
+        form.resetFields()
+        setVisibleCreate(false)
+        setIsEditing(false)
+        api[resposta.type]({
+          description: resposta.description,
+        })
+      }
     })
   }
 
   // DELETAR
-  function handleDelete(key) {
-    setDadosUsuarios((prev) => prev.filter((item) => item.key !== key))
-
-    api.success({
-      message: "Usuario excluído com sucesso!",
-      description: "Um usuario foi removido da lista.",
+  function handleDelete(id) {
+    deletar(id, {
+      onSuccess: (resposta) => {
+        api[resposta.type]({
+          description: resposta.description,
+        })
+      }
     })
   }
 
-  async function buscarUsuarios() {
-    const token = sessionStorage.getItem("token");
-    if(token){
-      const res = await AXIOS.get("/usuarios", {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      });
-      if (res.status == 200) {
-        setDadosUsuarios(res.data)
-      }
-    }
-  }
-
-  // BUSCAR USUARIOS
-  useEffect(() => {
-    buscarUsuarios()
-  }, [])
   return (
     <>
       <div>
@@ -157,8 +123,9 @@ const Usuarios = () => {
           </Button>
         </div>
         <Table
-          dataSource={dadosUsuarios}
+          dataSource={usuarios}
           columns={colunas}
+          loading={carregandoUsuarios}
         />
       </div>
 
@@ -173,6 +140,12 @@ const Usuarios = () => {
           onFinish={isEditing ? handleEdit : handleCreate}
         >
           <Form.Item
+            name={"usuario_id"}
+            hidden
+          >
+            <Input />
+          </Form.Item>
+          <Form.Item
             label="Nome"
             name={"usuario_nome"}
             rules={[{ required: true, message: "Campo obrigatório!" }]}
@@ -184,14 +157,14 @@ const Usuarios = () => {
             name={"usuario_email"}
             rules={[{ required: true, message: "Campo obrigatório!" }]}
           >
-            <Input placeholder="Email do usuário" />
+            <Input placeholder="Email do usuário" autoComplete="off" />
           </Form.Item>
           <Form.Item
             label="Senha"
             name={"usuario_senha"}
             rules={[{ required: true, message: "Campo obrigatório!" }]}
           >
-            <Input.Password placeholder="Senha do usuário" />
+            <Input.Password placeholder="Senha do usuário" autoComplete="new-password" />
           </Form.Item>
           <Button
             type="primary"

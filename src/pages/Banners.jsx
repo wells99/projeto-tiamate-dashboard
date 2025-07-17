@@ -1,25 +1,28 @@
-import { useState, useContext, useEffect } from "react";
+import { useState, useContext } from "react";
 import { AntContext } from "../contexts/AntContext";
-import { Button, Drawer, Form, Input, Popconfirm, Table, Image, Upload } from "antd";
-import { DeleteFilled, EditFilled, PlusCircleOutlined, UploadOutlined } from "@ant-design/icons";
+import { Button, Drawer, Form, Input, Popconfirm, Table, Image } from "antd";
+import { DeleteFilled, EditFilled, PlusCircleOutlined } from "@ant-design/icons";
+import { useBuscarBanners, useCriarBanner, useDeletarBanner, useEditarBanner } from './../hooks/bannerHooks';
 
 const Banners = () => {
   const [visibleCreate, setVisibleCreate] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-  const [editingBanner, setEditingBanner] = useState(null);
   const { api } = useContext(AntContext);
   const [form] = Form.useForm();
-  const [banners, setBanners] = useState([]);
+  const { data: banners, isLoading } = useBuscarBanners();
+  const { mutateAsync: criar } = useCriarBanner();
+  const { mutateAsync: editar } = useEditarBanner();
+  const { mutateAsync: deletar } = useDeletarBanner();
 
   const colunas = [
     {
       title: "Imagem",
-      dataIndex: "imagem",
+      dataIndex: "banner_imagem",
       key: "banner_imagem",
       width: "10%",
       align: "center",
       render: (imagem) => (
-        <Image 
+        <Image
           src={imagem}
           alt="Banner"
           width={60}
@@ -30,7 +33,7 @@ const Banners = () => {
     },
     {
       title: "Nome",
-      dataIndex: "nome",
+      dataIndex: "banner_nome",
       key: "banner_nome",
       width: "81%",
       ellipsis: true,
@@ -66,108 +69,56 @@ const Banners = () => {
   function openDrawerCreate() {
     setVisibleCreate(true);
     setIsEditing(false);
-    setEditingBanner(null);
     form.resetFields();
   }
 
-  function handleCreate(dados) {
-    let imagemUrl = "";
-    if (
-      dados.banner_imagem &&
-      Array.isArray(dados.banner_imagem) &&
-      dados.banner_imagem.length > 0
-    ) {
-      const file = dados.banner_imagem[0].originFileObj;
-      imagemUrl = URL.createObjectURL(file);
-    }
-
-    setBanners((prev) => [
-      ...prev,
-      {
-        key: prev.length + 1,
-        nome: dados.banner_nome,
-        imagem: imagemUrl,
+  async function handleCreate(dados) {
+    await criar(dados, {
+      onSuccess: (res) => {
+        form.resetFields();
+        setVisibleCreate(false);
+        api.success({
+          message: "Banner criado com sucesso!",
+          description: res?.description || "Banner adicionado à lista.",
+        });
       },
-    ]);
-    form.resetFields();
-    setVisibleCreate(false);
-
-    api.success({
-      message: "Banner criado com sucesso!",
-      description: "Um banner foi adicionado à lista.",
     });
   }
 
   function openDrawerEdit(record) {
     setIsEditing(true);
-    setEditingBanner(record);
     setVisibleCreate(true);
     form.setFieldsValue({
-      banner_nome: record.nome,
-      banner_imagem: record.imagem
-        ? [
-            {
-              uid: "-1",
-              name: "image.png",
-              status: "done",
-              url: record.imagem,
-            },
-          ]
-        : [],
+      banner_id: record.banner_id,
+      banner_nome: record.banner_nome,
+      banner_link: record.banner_link
     });
   }
 
-  function handleEdit(dados) {
-    let imagemUrl = editingBanner.imagem;
-    if (
-      dados.banner_imagem &&
-      Array.isArray(dados.banner_imagem) &&
-      dados.banner_imagem.length > 0
-    ) {
-      const fileObj = dados.banner_imagem[0];
-      if (fileObj.originFileObj) {
-        imagemUrl = URL.createObjectURL(fileObj.originFileObj);
-      } else if (fileObj.url) {
-        imagemUrl = fileObj.url;
-      }
-    }
-
-    setBanners((prev) =>
-      prev.map((item) =>
-        item.key === editingBanner.key
-          ? {
-              ...item,
-              nome: dados.banner_nome,
-              imagem: imagemUrl,
-            }
-          : item
-      )
-    );
-    form.resetFields();
-    setVisibleCreate(false);
-    setIsEditing(false);
-    setEditingBanner(null);
-    api.success({
-      message: "Banner editado com sucesso!",
-      description: "Um banner foi atualizado na lista.",
+  async function handleEdit(dados) {
+    await editar(dados, {
+      onSuccess: (res) => {
+        form.resetFields();
+        setVisibleCreate(false);
+        setIsEditing(false);
+        api.success({
+          message: "Banner editado com sucesso!",
+          description: res?.description || "Banner atualizado.",
+        });
+      },
     });
   }
 
-  function handleDelete(key) {
-    setBanners((prev) => prev.filter((item) => item.key !== key));
-
-    api.success({
-      message: "Banner excluído com sucesso!",
-      description: "Um banner foi removido da lista.",
+  function handleDelete(id) {
+    deletar(id, {
+      onSuccess: () => {
+        api.success({
+          message: "Banner excluído com sucesso!",
+          description: "Um depoimento foi removido da lista.",
+        });
+      },
     });
   }
-
-  useEffect(() => {
-    fetch("http://localhost:3001/banners")
-      // ou: fetch("https://projeto-tiamate-back.onrender.com/banners")
-      .then((res) => res.json())
-      .then((data) => setBanners(data));
-  }, []);
 
   return (
     <>
@@ -182,7 +133,12 @@ const Banners = () => {
             Novo Banner
           </Button>
         </div>
-        <Table dataSource={banners} columns={colunas} />
+        <Table
+          rowKey={"banner_id"}
+          dataSource={banners}
+          loading={isLoading}
+          columns={colunas}
+        />
       </div>
 
       <Drawer
@@ -194,7 +150,14 @@ const Banners = () => {
           form={form}
           layout="vertical"
           onFinish={isEditing ? handleEdit : handleCreate}
+          encType="multipart/form-data"
         >
+          <Form.Item
+            hidden
+            name={"banner_id"}
+          >
+            <Input />
+          </Form.Item>
           <Form.Item
             label="Nome"
             name="banner_nome"
@@ -203,15 +166,25 @@ const Banners = () => {
             <Input placeholder="Nome do Banner" />
           </Form.Item>
           <Form.Item
+            label="Link"
+            name="banner_link"
+            rules={[{ required: true, message: "Campo obrigatório!" }]}
+          >
+            <Input placeholder="Nome do Banner" />
+          </Form.Item>
+          <Form.Item
             label="Imagem"
             name="banner_imagem"
             valuePropName="fileList"
-            getValueFromEvent={(e) => Array.isArray(e) ? e : e?.fileList}
-            rules={[{ required: true, message: "Campo obrigatório!" }]}
+            getValueFromEvent={(e) => {
+              if (Array.isArray(e)) {
+                return e;
+              }
+              return e?.target?.files?.[0];
+            }}
+            rules={[{ required: !isEditing, message: "Campo obrigatório!" }]}
           >
-            <Upload listType="picture" maxCount={1} beforeUpload={() => false}>
-              <Button icon={<UploadOutlined />}>Upload</Button>
-            </Upload>
+            <Input type="file" />
           </Form.Item>
           <Button type="primary" className="w-full" htmlType="submit">
             {isEditing ? "Editar" : "Criar"}

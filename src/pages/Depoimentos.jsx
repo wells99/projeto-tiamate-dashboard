@@ -88,7 +88,6 @@ const Depoimentos = () => {
   }
 
   async function handleCreate(dados) {
-
     await criar(dados, {
       onSuccess: (res) => {
         form.resetFields();

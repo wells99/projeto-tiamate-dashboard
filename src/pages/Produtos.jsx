@@ -1,11 +1,13 @@
 import { useContext, useState } from "react"
 import { AntContext } from "../contexts/AntContext"
 import {
-  Button, Drawer, Form, Input, InputNumber, Popconfirm, Table, Image
+  Button, Drawer, Form, Input, InputNumber, Popconfirm, Table, Image,
+  Select
 } from "antd"
 import {
   DeleteFilled, EditFilled, PlusCircleOutlined
 } from "@ant-design/icons"
+import { useBuscarCategorias } from './../hooks/categoriaHooks';
 import {
   useBuscarProdutos,
   useCriarProduto,
@@ -17,9 +19,10 @@ const Produtos = () => {
   const [visibleDrawer, setVisibleDrawer] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
   const [form] = Form.useForm()
-  const { api } = useContext(AntContext)
+  const { api } = useContext(AntContext);
 
   const { data: produtos } = useBuscarProdutos()
+  const { data: categorias, isFetched: carregouCategorias } = useBuscarCategorias()
   const { mutateAsync: criar } = useCriarProduto()
   const { mutateAsync: editar } = useEditarProduto()
   const { mutateAsync: deletar } = useDeletarProduto()
@@ -120,16 +123,16 @@ const Produtos = () => {
     })
   }
 
-    const handleEdit = (dados) => {
-        editar(dados, {
-            onSuccess: (res) => {
-                form.resetFields()
-                setVisibleDrawer(false)
-                setIsEditing(false)
-                api[res.type]?.({ description: res.description })
-            }
-        })
-    }
+  const handleEdit = (dados) => {
+    editar(dados, {
+      onSuccess: (res) => {
+        form.resetFields()
+        setVisibleDrawer(false)
+        setIsEditing(false)
+        api[res.type]?.({ description: res.description })
+      }
+    })
+  }
 
   const handleDelete = (id) => {
     deletar(id, {
@@ -207,7 +210,16 @@ const Produtos = () => {
             name="categoria_id"
             rules={[{ required: true, message: "Campo obrigatório!" }]}
           >
-            <InputNumber className="w-full" />
+            {/* <InputNumber className="w-full" /> */}
+            <Select
+              showSearch
+              options={carregouCategorias && categorias.map(categoria => {
+                return {
+                  label: categoria.categoria_nome,
+                  value: categoria.categoria_id
+                }
+              }) || []}
+            />
           </Form.Item>
 
           <Button type="primary" htmlType="submit" className="w-full mt-2">

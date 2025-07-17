@@ -13,7 +13,7 @@ const SafePaths = ({ children }) => {
         return config;
     }, function (error) {
         if (error.response.status === 401) {
-            localStorage.removeItem("token");
+            sessionStorage.clear();
             navigate("/");
         }
         return Promise.reject(error);
@@ -23,7 +23,7 @@ const SafePaths = ({ children }) => {
         return config;
     }, function (error) {
         if (error.response.status === 401) {
-            localStorage.removeItem("token");
+            sessionStorage.clear();
             navigate("/");
         }
         return Promise.reject(error);

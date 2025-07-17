@@ -1,8 +1,11 @@
-import { NavLink } from "react-router"
+import { NavLink, useNavigate } from "react-router"
 import logo from "../assets/logo.png"
-import { AppstoreOutlined, CommentOutlined, FileImageOutlined, MailOutlined, PictureOutlined, PieChartOutlined, ReadOutlined, ShopOutlined, ShoppingOutlined, TeamOutlined, UserOutlined } from "@ant-design/icons"
+import { AppstoreOutlined, CommentOutlined, FileImageOutlined, LogoutOutlined, MailOutlined, PictureOutlined, PieChartOutlined, ReadOutlined, ShopOutlined, ShoppingOutlined, TeamOutlined, UserOutlined } from "@ant-design/icons"
 
 const Header = () => {
+
+    const navigate = useNavigate();
+
     return (
         <header className="w-[270px] h-screen overflow-auto bg-cafe p-4">
             <img src={logo} alt="Tiamate" className="m-auto" />
@@ -95,6 +98,16 @@ const Header = () => {
                     <FileImageOutlined />
                     Pictures
                 </NavLink>
+                <div
+                    className={"flex gap-2 hover:bg-creme/10 [&.active]:bg-bege cursor-pointer"}
+                    onClick={() => {
+                        sessionStorage.clear();
+                        navigate("/");
+                    }}
+                >
+                    <LogoutOutlined />
+                    Sair
+                </div>
             </nav>
         </header>
     );
