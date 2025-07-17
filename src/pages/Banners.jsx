@@ -175,7 +175,7 @@ const Banners = () => {
           <Form.Item
             label="Imagem"
             name="banner_imagem"
-            valuePropName="fileList"
+            valuePropName="file"
             getValueFromEvent={(e) => {
               if (Array.isArray(e)) {
                 return e;

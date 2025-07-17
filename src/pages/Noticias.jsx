@@ -1,27 +1,30 @@
-import { useState, useContext, useEffect } from "react"
+import { useState, useContext } from "react"
 import { AntContext } from "../contexts/AntContext"
-import { Button, Drawer, Form, Input, Popconfirm, Table, Image, Upload } from "antd"
-import { DeleteFilled, EditFilled, PlusCircleOutlined, UploadOutlined } from "@ant-design/icons"
+import { Button, Drawer, Form, Input, Popconfirm, Table, Image } from "antd"
+import { DeleteFilled, EditFilled, PlusCircleOutlined } from "@ant-design/icons"
 import TextArea from "antd/es/input/TextArea"
+import { useBuscarNoticias, useCriarNoticia, useDeletarNoticia, useEditarNoticia } from "../hooks/noticiaHooks"
 
 const Noticias = () => {
   const [visibleCreate, setVisibleCreate] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
-  const [editingNoticias, setEditingNoticias] = useState(null)
   const { api } = useContext(AntContext)
   const [form] = Form.useForm()
-  const [noticias, setNoticias] = useState([])
+  const { data: noticias, isLoading } = useBuscarNoticias();
+  const { mutateAsync: criar } = useCriarNoticia();
+  const { mutateAsync: editar } = useEditarNoticia();
+  const { mutateAsync: deletar } = useDeletarNoticia();
 
   // COLUNAS DA TABELA
   const colunas = [
     {
       title: "Imagem",
-      dataIndex: "imagem",
+      dataIndex: "noticia_imagem",
       key: "noticia_imagem",
       width: "10%",
       align: "center",
       render: (imagem) => (
-        <Image 
+        <Image
           src={imagem}
           alt="Noticia"
           width={60}
@@ -32,21 +35,21 @@ const Noticias = () => {
     },
     {
       title: "Titulo",
-      dataIndex: "titulo",
+      dataIndex: "noticia_titulo",
       key: "noticia_titulo",
       width: "20%",
       ellipsis: true,
     },
     {
       title: "Link",
-      dataIndex: "link",
+      dataIndex: "noticia_link",
       key: "noticia_link",
       width: "20%",
       ellipsis: true,
     },
     {
       title: "Descrição",
-      dataIndex: "descricao",
+      dataIndex: "noticia_descricao",
       key: "noticia_descricao",
       width: "41%",
       ellipsis: true,
@@ -65,7 +68,7 @@ const Noticias = () => {
             title="Deseja excluir?"
             okText="Sim"
             cancelText="Não"
-            onConfirm={() => handleDelete(record.key)}
+            onConfirm={() => handleDelete(record.noticia_id)}
           >
             <div className="w-[30px] h-[30px] flex justify-center items-center cursor-pointer duration-150 border border-transparent rounded-full hover:border-marrom group">
               <DeleteFilled className=" duration-150 !text-bege group-hover:!text-marrom" />
@@ -76,124 +79,59 @@ const Noticias = () => {
     },
   ]
 
-  // ABRIR CRIAR
   function openDrawerCreate() {
-    setVisibleCreate(true)
-    setIsEditing(false)
-    setEditingNoticias(null)
-    form.resetFields()
+    setVisibleCreate(true);
+    setIsEditing(false);
+    form.resetFields();
   }
 
-  // CRIAR
-  function handleCreate(dados) {
-    let imagemUrl = ""
-    if (
-      dados.noticia_imagem &&
-      Array.isArray(dados.noticia_imagem) &&
-      dados.noticia_imagem.length > 0
-    ) {
-      const file = dados.noticia_imagem[0].originFileObj
-      imagemUrl = URL.createObjectURL(file)
-    }
-
-    setNoticias((prev) => [
-      ...prev,
-      {
-        key: prev.length + 1,
-        titulo: dados.noticia_titulo,
-        link: dados.noticia_link,
-        descricao: dados.noticia_descricao,
-        imagem: imagemUrl,
+  async function handleCreate(dados) {
+    await criar(dados, {
+      onSuccess: (res) => {
+        form.resetFields();
+        setVisibleCreate(false);
+        api.success({
+          description: res?.description
+        });
       },
-    ])
-    form.resetFields()
-    setVisibleCreate(false)
-
-    api.success({
-      message: "Notícia criada com sucesso!",
-      description: "Uma notícia foi adicionada a lista.",
-    })
+    });
   }
 
-  // ABRIR EDITAR
   function openDrawerEdit(record) {
-    setIsEditing(true)
-    setEditingNoticias(record)
-    setVisibleCreate(true)
+    setIsEditing(true);
+    setVisibleCreate(true);
     form.setFieldsValue({
-      noticia_titulo: record.titulo,
-      noticia_link: record.link,
-      noticia_descricao: record.descricao,
-      noticia_imagem: record.imagem
-        ? [
-            {
-              uid: "-1",
-              name: "image.png",
-              status: "done",
-              url: record.imagem,
-            },
-          ] 
-        : [],
-    })
+      noticia_id: record.noticia_id,
+      noticia_titulo: record.noticia_titulo,
+      noticia_link: record.noticia_link,
+      noticia_descricao: record.noticia_descricao,
+    });
   }
 
-  // EDITAR
-  function handleEdit(dados) {
-    let imagemUrl = editingNoticias.imagem;
-    if (
-      dados.noticia_imagem &&
-      Array.isArray(dados.noticia_imagem) &&
-      dados.noticia_imagem.length > 0
-    ) {
-      const fileObj = dados.noticia_imagem[0];
-      if (fileObj.originFileObj) {
-        imagemUrl = URL.createObjectURL(fileObj.originFileObj);
-      } else if (fileObj.url) {
-        imagemUrl = fileObj.url;
-      }
-    }
-
-    setNoticias((prev) =>
-      prev.map((item) =>
-        item.key === editingNoticias.key
-          ? {
-              ...item,
-              titulo: dados.noticia_titulo,
-              link: dados.noticia_link,
-              descricao: dados.noticia_descricao,
-              imagem: imagemUrl,
-            }
-          : item
-      )
-    )
-    form.resetFields()
-    setVisibleCreate(false)
-    setIsEditing(false)
-    setEditingNoticias(null)
-    api.success({
-      message: "Notícia editada com sucesso!",
-      description: "Uma notícia foi atualizada na lista.",
-    })
+  async function handleEdit(dados) {
+    await editar(dados, {
+      onSuccess: (res) => {
+        form.resetFields();
+        setVisibleCreate(false);
+        setIsEditing(false);
+        api.success({
+          description: res?.description
+        });
+      },
+    });
   }
 
-  // DELETAR
-  function handleDelete(key) {
-    setNoticias((prev) => prev.filter((item) => item.key !== key))
-
-    api.success({
-      message: "Notícia excluída com sucesso!",
-      description: "Uma notícia foi removida da lista.",
-    })
+  function handleDelete(id) {
+    deletar(id, {
+      onSuccess: () => {
+        api.success({
+          description: "Um depoimento foi removido da lista.",
+        });
+      },
+    });
   }
 
-  // BUSCAR NOTICIAS
-  useEffect(() => {
-    fetch("http://localhost:3001/noticias")
-    // fetch("https://projeto-tiamate-back.onrender.com/noticias")
-      .then(res => res.json())
-      .then(data => setNoticias(data))
-  }, [])
-  return ( 
+  return (
     <>
       <div>
         <div className="flex justify-between items-center mb-8">
@@ -207,8 +145,10 @@ const Noticias = () => {
           </Button>
         </div>
         <Table
+          rowKey={"noticia_id"}
           dataSource={noticias}
           columns={colunas}
+          loading={isLoading}
         />
       </div>
 
@@ -222,6 +162,12 @@ const Noticias = () => {
           layout="vertical"
           onFinish={isEditing ? handleEdit : handleCreate}
         >
+          <Form.Item
+            hidden
+            name={"noticia_id"}
+          >
+            <Input />
+          </Form.Item>
           <Form.Item
             label="Titulo"
             name={"noticia_titulo"}
@@ -244,7 +190,7 @@ const Noticias = () => {
             name={"noticia_descricao"}
             rules={[{ required: true, message: "Campo obrigatório!" }]}
           >
-            <TextArea 
+            <TextArea
               rows={4}
               placeholder="Descrição da notícia"
             />
@@ -252,17 +198,16 @@ const Noticias = () => {
           <Form.Item
             label="Imagem"
             name={"noticia_imagem"}
-            valuePropName="fileList"
-            getValueFromEvent={e => Array.isArray(e) ? e : e && e.fileList}
-            rules={[{ required: true, message: "Campo obrigatório!" }]}
+            valuePropName="file"
+            getValueFromEvent={(e) => {
+              if (Array.isArray(e)) {
+                return e;
+              }
+              return e?.target?.files?.[0];
+            }}
+            rules={[{ required: !isEditing, message: "Campo obrigatório!" }]}
           >
-            <Upload
-              listType="picture"
-              maxCount={1}
-              beforeUpload={() => false}
-            >
-              <Button icon={<UploadOutlined />}>Upload</Button>
-            </Upload>
+            <Input type="file" />
           </Form.Item>
           <Button
             type="primary"
@@ -274,7 +219,7 @@ const Noticias = () => {
         </Form>
       </Drawer>
     </>
-   );
+  );
 }
- 
+
 export default Noticias;
